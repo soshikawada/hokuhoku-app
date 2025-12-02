@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほくほくルート - 行きたいリスト</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>行きたいリスト</h1>
+            <p>訪問する施設の順番を決めましょう</p>
+        </header>
+
+        <main>
+            <div class="page-actions">
+                <a href="recommendations.html" class="btn btn-secondary">← おすすめ施設に戻る</a>
+            </div>
+
+            <section class="wishlist-section">
+                <h2>行きたいリスト</h2>
+                <p class="hint">ドラッグ&ドロップで順番を変更できます</p>
+                <div id="wishlist" class="wishlist"></div>
+                <div class="wishlist-actions">
+                    <button id="routeBtn" class="btn btn-primary" style="display: none;">ルート検索</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- アプリケーションスクリプト -->
+    <script src="js/dragDrop.js"></script>
+    <script src="js/wishlistPage.js"></script>
+</body>
+</html>
+

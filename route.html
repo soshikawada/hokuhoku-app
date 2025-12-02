@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほくほくルート - ルート表示</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="route-container">
+        <header>
+            <button id="sidebarToggle" class="sidebar-toggle" aria-label="サイドバーを開く">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <h1>ルートマップ</h1>
+            <div class="header-actions">
+                <a href="recommendations.html" class="btn btn-secondary">← リストに戻る</a>
+            </div>
+        </header>
+
+        <main class="route-main">
+            <!-- 地図（全面表示） -->
+            <section class="route-map-section">
+                <div id="map" class="map-container"></div>
+            </section>
+
+            <!-- サイドバー：行きたいリスト（地図の上に重ねて表示） -->
+            <aside class="route-sidebar open" id="routeSidebar">
+                <div class="sidebar-header">
+                    <h2>行きたいリスト</h2>
+                    <button id="sidebarClose" class="sidebar-close" aria-label="サイドバーを閉じる">×</button>
+                </div>
+                <section class="wishlist-section">
+                    <p class="hint">ドラッグ&ドロップで順番を変更できます</p>
+                    
+                    <!-- 施設検索 -->
+                    <div class="search-section">
+                        <h3>施設を検索して追加</h3>
+                        <div class="search-box">
+                            <input type="text" id="placeSearch" placeholder="施設名を入力してください">
+                            <button id="searchBtn" class="btn btn-secondary">検索</button>
+                        </div>
+                        <div id="searchResults" class="search-results"></div>
+                    </div>
+
+                    <!-- 行きたいリスト -->
+                    <div id="wishlist" class="wishlist"></div>
+                    
+                    <!-- アクションボタン -->
+                    <div class="wishlist-actions">
+                        <button id="updateRouteBtn" class="btn btn-primary">ルートを更新</button>
+                    </div>
+                </section>
+            </aside>
+
+            <!-- サイドバーオーバーレイ（サイドバーが開いている時の背景） -->
+            <div class="sidebar-overlay active" id="sidebarOverlay"></div>
+        </main>
+    </div>
+
+    <!-- 設定ファイル -->
+    <script src="js/config.js"></script>
+    
+    <!-- Google Maps API（動的に読み込む） -->
+    <script id="google-maps-script"></script>
+    
+    <!-- アプリケーションスクリプト -->
+    <script src="js/csvParser.js"></script>
+    <script src="js/mapController.js"></script>
+    <script src="js/dragDrop.js"></script>
+    <script src="js/routePage.js"></script>
+    
+    <!-- Google Maps APIの動的読み込み -->
+    <script>
+        (function() {
+            const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
+                ? CONFIG.GOOGLE_MAPS_API_KEY 
+                : 'YOUR_API_KEY';
+            
+            if (apiKey === 'YOUR_API_KEY') {
+                console.warn('Google Maps APIキーが設定されていません。js/config.jsファイルを確認してください。');
+            }
+            
+            const script = document.getElementById('google-maps-script');
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places,directions&callback=initMapForRoute`;
+            script.async = true;
+            script.defer = true;
+        })();
+    </script>
+</body>
+</html>
+

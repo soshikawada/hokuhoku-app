@@ -1,0 +1,21 @@
+# 設定ファイル（APIキーを含むため、Gitにコミットしない）
+js/config.js
+
+# エディタ設定
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS設定
+.DS_Store
+Thumbs.db
+
+# ログファイル
+*.log
+
+# 一時ファイル
+*.tmp
+*.temp
+

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほくほくルート - 属性入力</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>ほくほくルート</h1>
+            <p>あなたの属性に基づいて、おすすめの観光施設を提案します</p>
+        </header>
+
+        <main>
+            <!-- 属性入力フォーム -->
+            <section class="form-section">
+                <h2>あなたの情報を入力してください</h2>
+                <form id="userForm">
+                    <div class="form-group">
+                        <label for="age">年代</label>
+                        <select id="age" name="age" required>
+                            <option value="">選択してください</option>
+                            <option value="10代">10代</option>
+                            <option value="20代">20代</option>
+                            <option value="30代">30代</option>
+                            <option value="40代">40代</option>
+                            <option value="50代">50代</option>
+                            <option value="60代">60代</option>
+                            <option value="70代">70代</option>
+                            <option value="80代">80代</option>
+                            <option value="90代">90代</option>
+                            <option value="100代">100代</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>性別</label>
+                        <div class="radio-group">
+                            <label><input type="radio" name="gender" value="男性" required> 男性</label>
+                            <label><input type="radio" name="gender" value="女性" required> 女性</label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stayDays">宿泊日数</label>
+                        <select id="stayDays" name="stayDays" required>
+                            <option value="">選択してください</option>
+                            <option value="1泊">1泊</option>
+                            <option value="2泊">2泊</option>
+                            <option value="3泊">3泊</option>
+                            <option value="4泊以上">4泊以上</option>
+                            <option value="日帰り">日帰り</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companion">同伴者</label>
+                        <select id="companion" name="companion" required>
+                            <option value="">選択してください</option>
+                            <option value="自分ひとり">自分ひとり</option>
+                            <option value="恋人">恋人</option>
+                            <option value="友人">友人</option>
+                            <option value="夫婦2人">夫婦2人</option>
+                            <option value="団体旅行">団体旅行</option>
+                            <option value="親戚">親戚</option>
+                            <option value="親">親</option>
+                            <option value="職場の同僚">職場の同僚</option>
+                            <option value="小学生以下連れの家族">小学生以下連れの家族</option>
+                            <option value="中学生以下連れの家族">中学生以下連れの家族</option>
+                            <option value="高校生連れの家族">高校生連れの家族</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purpose">訪問目的</label>
+                        <select id="purpose" name="purpose" required>
+                            <option value="">選択してください</option>
+                            <option value="災害支援">災害支援</option>
+                            <option value="宿でのんびり過ごす">宿でのんびり過ごす</option>
+                            <option value="温泉や露天風呂">温泉や露天風呂</option>
+                            <option value="地元の美味しいものを食べる">地元の美味しいものを食べる</option>
+                            <option value="花見や紅葉などの自然鑑賞">花見や紅葉などの自然鑑賞</option>
+                            <option value="名所、旧跡の観光">名所、旧跡の観光</option>
+                            <option value="テーマパーク（遊園地、動物園、博物館など）">テーマパーク（遊園地、動物園、博物館など）</option>
+                            <option value="買い物、アウトレット">買い物、アウトレット</option>
+                            <option value="お祭りやイベントへの参加・見物">お祭りやイベントへの参加・見物</option>
+                            <option value="スポーツ観戦や芸能鑑賞（コンサート等）">スポーツ観戦や芸能鑑賞（コンサート等）</option>
+                            <option value="アウトドア（海水浴、釣り、登山など）">アウトドア（海水浴、釣り、登山など）</option>
+                            <option value="まちあるき、都市散策">まちあるき、都市散策</option>
+                            <option value="各種体験（手作り、果物狩りなど）">各種体験（手作り、果物狩りなど）</option>
+                            <option value="スキー・スノボ、マリンスポーツ">スキー・スノボ、マリンスポーツ</option>
+                            <option value="その他スポーツ（ゴルフ、テニスなど）">その他スポーツ（ゴルフ、テニスなど）</option>
+                            <option value="ドライブ・ツーリング">ドライブ・ツーリング</option>
+                            <option value="友人・親戚を尋ねる">友人・親戚を尋ねる</option>
+                            <option value="出張など仕事関係">出張など仕事関係</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary">レコメンド実行</button>
+                </form>
+            </section>
+        </main>
+    </div>
+
+    <!-- アプリケーションスクリプト -->
+    <script src="js/csvParser.js"></script>
+    <script src="js/recommendation.js"></script>
+    <script src="js/formHandler.js"></script>
+</body>
+</html>
