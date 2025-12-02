@@ -1,0 +1,11 @@
+{
+    "name": "hokuhoku-route",
+    "version": "1.0.0",
+    "description": "北陸地方の観光ルート提案アプリ",
+    "scripts": {
+      "build": "node build.js"
+    },
+    "engines": {
+      "node": ">=14.x"
+    }
+  }
