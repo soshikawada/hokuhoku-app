@@ -17,8 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             const formData = new FormData(form);
             const userAttributes = {
                 age: formData.get('age'),
-                gender: formData.get('gender'),
-                stayDays: formData.get('stayDays'),
+                prefectureArea: formData.get('prefectureArea'),
                 companion: formData.get('companion'),
                 purpose: formData.get('purpose')
             };
