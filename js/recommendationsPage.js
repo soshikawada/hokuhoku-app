@@ -508,7 +508,7 @@ function loadWishlist() {
     if (wishlist.length === 0) {
         const container = document.getElementById('wishlist');
         if (container) {
-            container.innerHTML = '<div class="error">行きたいリストが空です。左側の施設から選択してください。</div>';
+            container.innerHTML = '';
         }
         // すべて削除ボタンを非表示
         const clearBtn = document.getElementById('clearWishlistBtn');
@@ -518,6 +518,15 @@ function loadWishlist() {
         return;
     }
 
+    // 空の状態のメッセージを削除
+    const container = document.getElementById('wishlist');
+    if (container) {
+        const errorMessage = container.querySelector('.error');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+    }
+    
     // ドラッグ&ドロップマネージャーにアイテムを追加
     wishlist.forEach((item, index) => {
         dragDropManager.addItem(item.facility, item.location);
@@ -551,7 +560,7 @@ function clearAllWishlist() {
     // リスト表示を更新
     const container = document.getElementById('wishlist');
     if (container) {
-        container.innerHTML = '<div class="error">行きたいリストが空です。左側の施設から選択してください。</div>';
+        container.innerHTML = '';
     }
     
     // すべて削除ボタンを非表示

@@ -11,10 +11,10 @@ html, body {
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: "Shippori Mincho", "Yu Mincho", "Hiragino Mincho ProN", serif;
     line-height: 1.6;
-    color: #333;
-    background: linear-gradient(180deg, #e8f4f8 0%, #f0f8ff 50%, #ffffff 100%);
+    color: #f0f0f0;
+    background: linear-gradient(180deg, #1a1a1a 0%, #2a2a2a 50%, #1e1e1e 100%);
     background-attachment: fixed;
     min-height: 100vh;
 }
@@ -26,13 +26,13 @@ body {
 }
 
 header {
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 50%, #6bb5cc 100%);
-    color: white;
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #aa8c46 100%);
+    color: #1a1a1a;
     padding: 30px;
     border-radius: 12px;
     margin-bottom: 30px;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(74, 144, 164, 0.25);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
     position: relative;
     overflow: hidden;
 }
@@ -44,23 +44,26 @@ header::before {
     right: -20%;
     width: 200px;
     height: 200px;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(26, 26, 26, 0.15) 0%, transparent 70%);
     border-radius: 50%;
 }
 
 header h1 {
     font-size: 2.5em;
     margin-bottom: 10px;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 1;
+    font-weight: 700;
+    letter-spacing: 0.1em;
 }
 
 header p {
     font-size: 1.1em;
-    opacity: 0.95;
+    opacity: 0.9;
     position: relative;
     z-index: 1;
+    color: #1a1a1a;
 }
 
 main {
@@ -88,10 +91,11 @@ main {
 .wishlist-panel {
     width: 500px;
     min-width: 400px;
-    background: white;
+    background: #2d2d2d;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.3);
     position: sticky;
     top: 20px;
     max-height: calc(100vh - 200px);
@@ -105,20 +109,20 @@ main {
     gap: 10px;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .wishlist-header h2 {
     margin: 0;
     font-size: 1.5em;
-    color: #4a90a4;
+    color: #d4af37;
     font-weight: 600;
 }
 
 .wishlist-header .hint {
     margin: 0;
     font-size: 0.85em;
-    color: #666;
+    color: #aa8c46;
 }
 
 .wishlist-header .btn-danger {
@@ -136,7 +140,7 @@ main {
 .wishlist-panel .wishlist-actions {
     margin-top: auto;
     padding-top: 20px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .wishlist-panel .wishlist-actions .btn {
@@ -159,25 +163,27 @@ main {
 }
 
 section {
-    background: white;
+    background: #2d2d2d;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 section h2 {
-    color: #4a90a4;
+    color: #d4af37;
     margin-bottom: 20px;
     font-size: 1.8em;
-    border-bottom: 3px solid #4a90a4;
+    border-bottom: 3px solid #d4af37;
     padding-bottom: 12px;
     font-weight: 600;
     position: relative;
+    letter-spacing: 0.05em;
 }
 
 section h2::before {
-    content: '🏔️';
-    margin-right: 8px;
+    content: '';
+    margin-right: 0;
     font-size: 0.9em;
 }
 
@@ -190,24 +196,26 @@ section h2::before {
     display: block;
     margin-bottom: 8px;
     font-weight: 600;
-    color: #555;
+    color: #d4af37;
 }
 
 .form-group select,
 .form-group input[type="text"] {
     width: 100%;
     padding: 12px;
-    border: 2px solid #ddd;
+    border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 5px;
     font-size: 16px;
+    background: #1e1e1e;
+    color: #f0f0f0;
     transition: border-color 0.3s;
 }
 
 .form-group select:focus,
 .form-group input[type="text"]:focus {
     outline: none;
-    border-color: #4a90a4;
-    box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .radio-group {
@@ -283,8 +291,8 @@ section h2::before {
     flex-direction: column;
     align-items: center;
     padding: 25px 20px;
-    background: white;
-    border: 3px solid #e0e0e0;
+    background: #2d2d2d;
+    border: 3px solid rgba(212, 175, 55, 0.3);
     border-radius: 12px;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -295,14 +303,14 @@ section h2::before {
 
 .age-panel-label:hover {
     transform: translateY(-4px);
-    box-shadow: 0 8px 20px rgba(74, 144, 164, 0.2);
-    border-color: #4a90a4;
+    box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+    border-color: #d4af37;
 }
 
 .age-panel.selected .age-panel-label {
-    background: linear-gradient(135deg, #e8f4f8 0%, #f0f8ff 100%);
-    border-color: #4a90a4;
-    box-shadow: 0 6px 16px rgba(74, 144, 164, 0.3);
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(255, 215, 0, 0.15) 100%);
+    border-color: #d4af37;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.4);
     transform: translateY(-2px);
 }
 
@@ -313,9 +321,9 @@ section h2::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 50%, #6bb5cc 100%);
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 50%, #aa8c46 100%);
     border-radius: 50%;
-    box-shadow: 0 4px 12px rgba(74, 144, 164, 0.3);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.4);
     transition: all 0.3s ease;
 }
 
@@ -325,12 +333,12 @@ section h2::before {
 }
 
 .age-panel.selected .age-panel-image {
-    background: linear-gradient(135deg, #5ba3b8 0%, #6bb5cc 100%);
+    background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
     transform: scale(1.1);
 }
 
 .age-panel-content h3 {
-    color: #4a90a4;
+    color: #d4af37;
     font-size: 1.3em;
     margin-bottom: 8px;
     font-weight: 600;
@@ -338,13 +346,13 @@ section h2::before {
 }
 
 .age-panel-content p {
-    color: #666;
+    color: #aa8c46;
     font-size: 0.95em;
     margin: 0;
 }
 
 .age-panel.selected .age-panel-content h3 {
-    color: #2d5f6f;
+    color: #ffd700;
     font-weight: 700;
 }
 
@@ -353,10 +361,11 @@ section h2::before {
     width: 100%;
     max-width: 500px;
     margin: 20px auto;
-    background: white;
+    background: #2d2d2d;
     padding: 20px;
     border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 #japan-map {
@@ -404,7 +413,7 @@ section h2::before {
 }
 
 .map-instruction {
-    color: #666;
+    color: #aa8c46;
     font-size: 0.9em;
     margin: 0;
 }
@@ -434,15 +443,16 @@ section h2::before {
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 100%);
-    color: white;
-    box-shadow: 0 3px 8px rgba(74, 144, 164, 0.3);
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a1a;
+    box-shadow: 0 3px 8px rgba(212, 175, 55, 0.4);
+    font-weight: 600;
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 12px rgba(74, 144, 164, 0.4);
-    background: linear-gradient(135deg, #5ba3b8 0%, #6bb5cc 100%);
+    box-shadow: 0 5px 12px rgba(212, 175, 55, 0.5);
+    background: linear-gradient(135deg, #ffd700 0%, #d4af37 100%);
 }
 
 .btn-secondary {
@@ -465,9 +475,18 @@ section h2::before {
 .search-box input {
     flex: 1;
     padding: 12px;
-    border: 2px solid #ddd;
+    border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 5px;
     font-size: 16px;
+    background: #1e1e1e;
+    color: #f0f0f0;
+    transition: border-color 0.3s;
+}
+
+.search-box input:focus {
+    outline: none;
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
 }
 
 .search-results {
@@ -490,8 +509,8 @@ section h2::before {
 }
 
 .facility-card {
-    background: white;
-    border: 2px solid #e0e0e0;
+    background: #2d2d2d;
+    border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 10px;
     padding: 15px;
     transition: all 0.3s;
@@ -500,14 +519,14 @@ section h2::before {
 
 .facility-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 6px 16px rgba(74, 144, 164, 0.2);
-    border-color: #4a90a4;
+    box-shadow: 0 6px 16px rgba(212, 175, 55, 0.3);
+    border-color: #d4af37;
 }
 
 .facility-card.selected {
-    border-color: #4a90a4;
-    background: #e8f4f8;
-    box-shadow: 0 4px 12px rgba(74, 144, 164, 0.2);
+    border-color: #d4af37;
+    background: rgba(212, 175, 55, 0.1);
+    box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
 }
 
 .facility-card img {
@@ -519,7 +538,7 @@ section h2::before {
 }
 
 .facility-card h3 {
-    color: #4a90a4;
+    color: #d4af37;
     margin-bottom: 8px;
     font-size: 1.1em;
     line-height: 1.3;
@@ -527,7 +546,7 @@ section h2::before {
 }
 
 .facility-card .prefecture {
-    color: #666;
+    color: #aa8c46;
     font-size: 0.9em;
     margin-bottom: 10px;
 }
@@ -560,8 +579,8 @@ section h2::before {
 }
 
 .wishlist-item {
-    background: white;
-    border: 2px solid #e0e0e0;
+    background: #1e1e1e;
+    border: 2px solid rgba(212, 175, 55, 0.3);
     border-radius: 10px;
     padding: 12px;
     display: flex;
@@ -573,8 +592,8 @@ section h2::before {
 }
 
 .wishlist-item:hover {
-    border-color: #4a90a4;
-    box-shadow: 0 4px 10px rgba(74, 144, 164, 0.15);
+    border-color: #d4af37;
+    box-shadow: 0 4px 10px rgba(212, 175, 55, 0.2);
 }
 
 
@@ -592,7 +611,7 @@ section h2::before {
 }
 
 .wishlist-item .drag-handle:hover {
-    color: #667eea;
+    color: #d4af37;
 }
 
 .wishlist-item .drag-handle:active {
@@ -614,7 +633,7 @@ section h2::before {
 }
 
 .wishlist-item .item-info h4 {
-    color: #333;
+    color: #f0f0f0;
     margin: 0 0 4px 0;
     font-size: 0.95em;
     font-weight: 600;
@@ -625,7 +644,7 @@ section h2::before {
 }
 
 .wishlist-item .item-info .prefecture {
-    color: #666;
+    color: #aa8c46;
     font-size: 0.85em;
     margin: 0;
     overflow: hidden;
@@ -634,8 +653,8 @@ section h2::before {
 }
 
 .wishlist-item .order-number {
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 100%);
-    color: white;
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a1a;
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -645,7 +664,7 @@ section h2::before {
     font-weight: 600;
     font-size: 0.85em;
     flex-shrink: 0;
-    box-shadow: 0 2px 6px rgba(74, 144, 164, 0.3);
+    box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4);
 }
 
 .wishlist-item .delete-btn {
@@ -671,7 +690,7 @@ section h2::before {
 }
 
 .hint {
-    color: #666;
+    color: #aa8c46;
     font-size: 0.9em;
     margin-bottom: 15px;
     font-style: italic;
@@ -683,7 +702,8 @@ section h2::before {
     height: 600px;
     border-radius: 10px;
     overflow: hidden;
-    border: 2px solid #e0e0e0;
+    border: 2px solid rgba(212, 175, 55, 0.3);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
 }
 
 /* ページアクション */
@@ -716,8 +736,9 @@ section h2::before {
     padding: 20px 30px;
     position: relative;
     z-index: 1001;
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 100%);
-    box-shadow: 0 2px 8px rgba(74, 144, 164, 0.2);
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    color: #1a1a1a;
 }
 
 .route-container header h1 {
@@ -743,10 +764,11 @@ section h2::before {
     width: 400px;
     max-width: 90vw;
     height: 100vh;
-    background: white;
+    background: #2d2d2d;
     overflow-y: auto;
     padding: 20px;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 2px 0 10px rgba(212, 175, 55, 0.2);
+    border-right: 1px solid rgba(212, 175, 55, 0.3);
     z-index: 1000;
     transform: translateX(-100%);
     transition: transform 0.3s ease-in-out;
@@ -762,13 +784,13 @@ section h2::before {
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .sidebar-header h2 {
     margin: 0;
     font-size: 1.5em;
-    color: #4a90a4;
+    color: #d4af37;
     font-weight: 600;
 }
 
@@ -855,13 +877,13 @@ section h2::before {
 .route-sidebar .search-section {
     margin-bottom: 30px;
     padding-bottom: 20px;
-    border-bottom: 2px solid #e0e0e0;
+    border-bottom: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .route-sidebar .search-section h3 {
     font-size: 1.2em;
     margin-bottom: 15px;
-    color: #4a90a4;
+    color: #d4af37;
     font-weight: 600;
 }
 
@@ -886,7 +908,7 @@ section h2::before {
 .wishlist-actions {
     margin-top: 20px;
     padding-top: 20px;
-    border-top: 2px solid #e0e0e0;
+    border-top: 2px solid rgba(212, 175, 55, 0.3);
 }
 
 .wishlist-actions .btn {
@@ -905,10 +927,11 @@ section h2::before {
 }
 
 .prefecture-section {
-    background: white;
+    background: #2d2d2d;
     padding: 25px;
     border-radius: 10px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);
+    border: 1px solid rgba(212, 175, 55, 0.3);
 }
 
 .prefecture-header {
@@ -917,24 +940,24 @@ section h2::before {
     align-items: center;
     margin-bottom: 20px;
     padding-bottom: 15px;
-    border-bottom: 3px solid #4a90a4;
+    border-bottom: 3px solid #d4af37;
 }
 
 .prefecture-header h3 {
-    color: #4a90a4;
+    color: #d4af37;
     font-size: 1.5em;
     margin: 0;
     font-weight: 600;
 }
 
 .facility-count {
-    background: linear-gradient(135deg, #4a90a4 0%, #5ba3b8 100%);
-    color: white;
+    background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+    color: #1a1a1a;
     padding: 6px 16px;
     border-radius: 20px;
     font-size: 0.9em;
     font-weight: 600;
-    box-shadow: 0 2px 6px rgba(74, 144, 164, 0.3);
+    box-shadow: 0 2px 6px rgba(212, 175, 55, 0.4);
 }
 
 /* レスポンシブデザイン */
@@ -1026,7 +1049,7 @@ section h2::before {
 .loading {
     text-align: center;
     padding: 20px;
-    color: #667eea;
+    color: #d4af37;
     font-size: 1.1em;
 }
 
@@ -1037,7 +1060,7 @@ section h2::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(255, 255, 255, 0.95);
+    background: rgba(26, 26, 26, 0.95);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -1048,17 +1071,18 @@ section h2::before {
 .loading-content {
     text-align: center;
     padding: 40px;
-    background: white;
+    background: #2d2d2d;
     border-radius: 15px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+    border: 1px solid rgba(212, 175, 55, 0.3);
     max-width: 400px;
 }
 
 .loading-spinner {
     width: 60px;
     height: 60px;
-    border: 5px solid #e0e0e0;
-    border-top-color: #4a90a4;
+    border: 5px solid rgba(212, 175, 55, 0.3);
+    border-top-color: #d4af37;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin: 0 auto 20px;
@@ -1072,23 +1096,25 @@ section h2::before {
 .loading-text {
     font-size: 1.5em;
     font-weight: 600;
-    color: #4a90a4;
+    color: #d4af37;
     margin: 0 0 10px 0;
+    letter-spacing: 0.05em;
 }
 
 .loading-subtext {
     font-size: 1em;
-    color: #666;
+    color: #aa8c46;
     margin: 0;
 }
 
 /* エラーメッセージ */
 .error {
-    background: #fee;
-    color: #c33;
+    background: rgba(220, 53, 69, 0.1);
+    color: #ff6b6b;
     padding: 15px;
     border-radius: 5px;
     margin: 10px 0;
-    border-left: 4px solid #c33;
+    border-left: 4px solid #ff6b6b;
+    border: 1px solid rgba(255, 107, 107, 0.3);
 }
 

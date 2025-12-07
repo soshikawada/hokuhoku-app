@@ -172,11 +172,20 @@ async function loadWishlist() {
     if (wishlistItems.length === 0) {
         const container = document.getElementById('wishlist');
         if (container) {
-            container.innerHTML = '<div class="error">行きたいリストが空です。</div>';
+            container.innerHTML = '';
         }
         return;
     }
 
+    // 空の状態のメッセージを削除
+    const container = document.getElementById('wishlist');
+    if (container) {
+        const errorMessage = container.querySelector('.error');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+    }
+    
     // ドラッグ&ドロップマネージャーにアイテムを追加
     wishlistItems.forEach((item, index) => {
         dragDropManager.addItem(item.facility, item.location);

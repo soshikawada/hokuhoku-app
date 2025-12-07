@@ -72,6 +72,12 @@ class DragDropManager {
      * @param {Object} location - 位置情報（オプション）
      */
     addItem(facility, location = null) {
+        // 空の状態のメッセージを削除
+        const errorMessage = this.container.querySelector('.error');
+        if (errorMessage) {
+            errorMessage.remove();
+        }
+        
         const item = this.createItemElement(facility, location);
         this.container.appendChild(item);
         this.items.push({ facility, location, element: item });
