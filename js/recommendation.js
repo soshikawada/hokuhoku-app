@@ -16,10 +16,10 @@ class RecommendationEngine {
      * @param {string} userAttributes.stayDays - 宿泊日数
      * @param {string} userAttributes.companion - 同伴者
      * @param {string} userAttributes.purpose - 訪問目的
-     * @param {number} limit - 返却する施設数の上限（デフォルト: 20）
-     * @returns {Array} レコメンドされた施設の配列（スコア順）
+     * @param {number} limit - 返却する施設数の上限（デフォルト: 30）
+     * @returns {Array} レコメンドされた施設の配列（スコア上位30件を抽出後、NPS順にソート）
      */
-    recommend(userAttributes, limit = 20) {
+    recommend(userAttributes, limit = 30) {
         if (!this.facilities || this.facilities.length === 0) {
             console.warn('施設データがありません');
             return [];
@@ -37,8 +37,17 @@ class RecommendationEngine {
         // スコアの高い順にソート
         scoredFacilities.sort((a, b) => b.totalScore - a.totalScore);
 
-        // 上位limit件を返す
-        return scoredFacilities.slice(0, limit);
+        // 上位30施設を抽出
+        const top30Facilities = scoredFacilities.slice(0, limit);
+
+        // NPSが高い順にソート
+        top30Facilities.sort((a, b) => {
+            const npsA = a.nps || 0;
+            const npsB = b.nps || 0;
+            return npsB - npsA; // 降順（高い順）
+        });
+
+        return top30Facilities;
     }
 
     /**

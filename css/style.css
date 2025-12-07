@@ -1592,3 +1592,75 @@ section h2::before {
     border-top: 2px solid rgba(77, 182, 172, 0.3);
 }
 
+/* 都道府県フィルター */
+.prefecture-filter {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(0, 110, 95, 0.05);
+    border: 2px solid rgba(77, 182, 172, 0.3);
+    border-radius: 8px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 12px;
+    color: #006e5f;
+    font-weight: 600;
+    font-size: 0.95em;
+}
+
+.filter-options {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+    transition: all 0.3s;
+    user-select: none;
+}
+
+.filter-checkbox:hover {
+    background: rgba(77, 182, 172, 0.1);
+}
+
+.filter-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #4db6ac;
+}
+
+.filter-checkbox input[type="checkbox"]:checked {
+    accent-color: #006e5f;
+}
+
+.filter-checkbox span {
+    color: #1a1a1a;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.filter-checkbox input[type="checkbox"]:checked + span {
+    color: #006e5f;
+    font-weight: 600;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+    .filter-options {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .filter-checkbox {
+        padding: 10px;
+    }
+}
+

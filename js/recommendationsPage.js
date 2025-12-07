@@ -70,6 +70,9 @@ window.initMapForRecommendations = function() {
     // 既存の行きたいリストを読み込んで表示
     loadWishlist();
     
+    // 都道府県フィルターの設定
+    setupPrefectureFilter();
+    
     loadRecommendations();
 };
 
@@ -101,7 +104,7 @@ async function loadRecommendations() {
         const userAttributes = JSON.parse(userAttributesJson);
 
         // レコメンド実行（スコア計算）
-        const recommendations = recommendationEngine.recommend(userAttributes, 20);
+        const recommendations = recommendationEngine.recommend(userAttributes, 30);
         
         // ロード画面を非表示
         hideLoadingScreen();
@@ -182,6 +185,9 @@ function displayRecommendations(recommendations) {
             }
         }
     });
+    
+    // フィルターを適用（初期表示時）
+    applyPrefectureFilter();
 }
 
 /**
@@ -631,6 +637,110 @@ function handleWishlistOrderChange(event) {
     if (clearBtn) {
         clearBtn.style.display = wishlist.length > 0 ? 'block' : 'none';
     }
+}
+
+/**
+ * 都道府県フィルターの設定
+ */
+function setupPrefectureFilter() {
+    // 保存されたフィルター状態を読み込む
+    const savedFilters = JSON.parse(localStorage.getItem('prefectureFilters') || '["石川県", "富山県", "福井県"]');
+    
+    // チェックボックスに状態を反映
+    const checkboxes = document.querySelectorAll('.prefecture-filter input[type="checkbox"]');
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = savedFilters.includes(checkbox.value);
+        
+        // 変更イベントを設定
+        checkbox.addEventListener('change', () => {
+            applyPrefectureFilter();
+            savePrefectureFilterState();
+        });
+    });
+}
+
+/**
+ * 都道府県フィルターを適用
+ */
+function applyPrefectureFilter() {
+    const container = document.getElementById('recommendations');
+    if (!container) return;
+    
+    // 選択された都道府県を取得
+    const selectedPrefectures = Array.from(
+        document.querySelectorAll('.prefecture-filter input[type="checkbox"]:checked')
+    ).map(checkbox => checkbox.value);
+    
+    // すべての施設カードを取得
+    const cards = container.querySelectorAll('.facility-card');
+    
+    if (selectedPrefectures.length === 0) {
+        // すべて非表示
+        cards.forEach(card => {
+            card.style.display = 'none';
+        });
+        
+        // メッセージを表示
+        if (cards.length > 0) {
+            const message = document.createElement('div');
+            message.className = 'error';
+            message.textContent = '都道府県を選択してください';
+            message.id = 'filter-message';
+            
+            // 既存のメッセージを削除
+            const existingMessage = container.querySelector('#filter-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            container.insertBefore(message, container.firstChild);
+        }
+    } else {
+        // フィルターメッセージを削除
+        const existingMessage = container.querySelector('#filter-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+        
+        let visibleCount = 0;
+        
+        // カードをフィルタリング
+        cards.forEach(card => {
+            const prefecture = card.dataset.prefecture;
+            if (selectedPrefectures.includes(prefecture)) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // 該当施設がない場合のメッセージ
+        if (visibleCount === 0 && cards.length > 0) {
+            const message = document.createElement('div');
+            message.className = 'error';
+            message.textContent = '選択した都道府県の施設が見つかりませんでした';
+            message.id = 'filter-message';
+            
+            const existingMessage = container.querySelector('#filter-message');
+            if (existingMessage) {
+                existingMessage.remove();
+            }
+            
+            container.insertBefore(message, container.firstChild);
+        }
+    }
+}
+
+/**
+ * 都道府県フィルターの状態を保存
+ */
+function savePrefectureFilterState() {
+    const selectedPrefectures = Array.from(
+        document.querySelectorAll('.prefecture-filter input[type="checkbox"]:checked')
+    ).map(checkbox => checkbox.value);
+    
+    localStorage.setItem('prefectureFilters', JSON.stringify(selectedPrefectures));
 }
 
 /**

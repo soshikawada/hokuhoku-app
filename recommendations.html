@@ -38,6 +38,26 @@
                 <section class="recommendations-section">
                     <h2>おすすめ施設一覧</h2>
                     <p class="hint">行きたい施設にチェックを入れて、右側のリストに追加してください</p>
+                    
+                    <!-- 都道府県フィルター -->
+                    <div class="prefecture-filter">
+                        <label class="filter-label">都道府県で絞り込む：</label>
+                        <div class="filter-options">
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="石川県" id="filter-ishikawa" checked>
+                                <span>石川県</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="富山県" id="filter-toyama" checked>
+                                <span>富山県</span>
+                            </label>
+                            <label class="filter-checkbox">
+                                <input type="checkbox" value="福井県" id="filter-fukui" checked>
+                                <span>福井県</span>
+                            </label>
+                        </div>
+                    </div>
+                    
                     <div id="recommendations" class="recommendations-grid"></div>
                 </section>
 

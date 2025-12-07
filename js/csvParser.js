@@ -94,8 +94,16 @@ class CSVParser {
         const facility = {
             prefecture: values[0] || '',
             name: values[1] || '',
-            scores: {}
+            scores: {},
+            nps: 0  // NPSを追加（デフォルト値は0）
         };
+
+        // NPSカラムのインデックスを取得（ヘッダーの18番目、インデックス17）
+        const npsIndex = this.headers.indexOf('NPS');
+        if (npsIndex !== -1 && npsIndex < values.length) {
+            const npsValue = parseFloat(values[npsIndex]);
+            facility.nps = isNaN(npsValue) ? 0 : npsValue;
+        }
 
         // ヘッダーから属性カラムのインデックスを取得
         const attributeColumns = {
