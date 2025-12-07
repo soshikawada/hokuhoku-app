@@ -205,15 +205,22 @@ function createFacilityCard(facility, index, existingWishlist) {
         item.facility.name === facility.name && item.facility.prefecture === facility.prefecture
     );
 
+    // 施設名と都道府県をエスケープ
+    const escapedName = facility.name.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    const escapedPrefecture = facility.prefecture.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+    
     card.innerHTML = `
         <div class="loading">読み込み中...</div>
         <h3>${facility.name}</h3>
         <div class="prefecture">${facility.prefecture}</div>
-        ${facility.totalScore !== undefined ? `<div class="score">スコア: ${facility.totalScore.toFixed(3)}</div>` : ''}
         <div class="checkbox-container">
             <input type="checkbox" id="facility-${index}" ${isInWishlist ? 'checked' : ''} 
-                   onchange="handleFacilityCheckbox(this, '${facility.name}', '${facility.prefecture}')">
+                   onchange="handleFacilityCheckbox(this, '${escapedName}', '${escapedPrefecture}')">
             <label for="facility-${index}">行きたいリストに追加</label>
+        </div>
+        <div class="facility-links">
+            <a href="evaluation.html?facility=${encodeURIComponent(facility.name)}&prefecture=${encodeURIComponent(facility.prefecture)}&ai=true" 
+               class="recommendation-link" target="_blank">✨ おすすめポイント</a>
         </div>
     `;
 

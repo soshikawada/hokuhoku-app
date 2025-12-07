@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほくほくルート - 評価ポイント</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>評価ポイント</h1>
+            <p id="facilityInfo">施設情報を読み込んでいます...</p>
+        </header>
+
+        <main>
+            <!-- ローディング表示 -->
+            <div id="loadingOverlay" class="loading-overlay" style="display: none;">
+                <div class="loading-content">
+                    <div class="loading-spinner"></div>
+                    <p class="loading-text">データを読み込んでいます...</p>
+                </div>
+            </div>
+
+            <!-- エラー表示 -->
+            <div id="errorMessage" class="error" style="display: none;"></div>
+
+            <!-- 統計情報セクション -->
+            <section class="statistics-section">
+                <h2>統計情報</h2>
+                <div id="statistics" class="statistics-grid">
+                    <!-- 統計情報がここに表示されます -->
+                </div>
+            </section>
+
+            <!-- グラフセクション -->
+            <section class="charts-section">
+                <h2>評価分布</h2>
+                <div class="charts-container">
+                    <div class="chart-wrapper">
+                        <h3>満足度分布</h3>
+                        <canvas id="satisfactionChart"></canvas>
+                    </div>
+                    <div class="chart-wrapper">
+                        <h3>おすすめ度分布</h3>
+                        <canvas id="recommendationChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 属性別分析セクション -->
+            <section class="attributes-section">
+                <h2>属性別分析</h2>
+                <div class="attributes-container">
+                    <div class="attribute-chart">
+                        <h3>年代別分布</h3>
+                        <canvas id="ageChart"></canvas>
+                    </div>
+                    <div class="attribute-chart">
+                        <h3>同伴者別分布</h3>
+                        <canvas id="companionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AIおすすめポイントセクション -->
+            <section class="ai-recommendation-section" id="aiRecommendationSection" style="display: none;">
+                <h2>✨ AIおすすめポイント</h2>
+                <div id="aiRecommendationContent" class="ai-recommendation-content">
+                    <!-- AI生成されたおすすめポイントがここに表示されます -->
+                </div>
+                <div id="aiLoading" class="ai-loading" style="display: none;">
+                    <div class="loading-spinner"></div>
+                    <p>AIがおすすめポイントを生成しています...</p>
+                </div>
+                <div id="aiError" class="error" style="display: none;"></div>
+            </section>
+
+            <!-- 戻るボタン -->
+            <div class="page-actions">
+                <a href="recommendations.html" class="btn btn-secondary">← 施設一覧に戻る</a>
+            </div>
+        </main>
+    </div>
+
+    <!-- 設定ファイル -->
+    <script src="js/config.js"></script>
+    
+    <!-- アプリケーションスクリプト -->
+    <script src="js/tsvParser.js"></script>
+    <script src="js/openaiService.js"></script>
+    <script src="js/evaluationPage.js"></script>
+</body>
+</html>
+
