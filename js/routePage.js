@@ -63,17 +63,17 @@ window.initMapForRoute = function() {
         updateRouteBtn.addEventListener('click', updateRoute);
     }
 
-    // しおり作成ボタンのイベント設定
-    const createItineraryBtn = document.getElementById('createItineraryBtn');
-    if (createItineraryBtn) {
-        createItineraryBtn.addEventListener('click', () => {
+    // タイムスケジュール作成ボタンのイベント設定
+    const createScheduleBtn = document.getElementById('createScheduleBtn');
+    if (createScheduleBtn) {
+        createScheduleBtn.addEventListener('click', () => {
             // ルートが計算されているか確認
             const routeInfo = localStorage.getItem('routeInfo');
             if (!routeInfo) {
                 alert('まず「ルートを更新」ボタンをクリックしてルートを計算してください。');
                 return;
             }
-            window.location.href = 'itinerary.html';
+            window.location.href = 'schedule.html';
         });
     }
 
@@ -214,6 +214,7 @@ async function loadWishlist() {
     // 初期ルートを表示
     await updateRoute();
 }
+
 
 /**
  * 検索機能の設定
@@ -357,6 +358,9 @@ function handleWishlistOrderChange(event) {
     }));
     
     localStorage.setItem('wishlist', JSON.stringify(wishlistItems));
+    
+    // ルートを自動更新
+    updateRoute();
 }
 
 /**
@@ -373,17 +377,44 @@ async function updateRoute() {
         return;
     }
 
-    // 現在の行きたいリストを取得
+    // 現在の行きたいリストを取得（最新の状態を取得）
     const items = dragDropManager.getItems();
+    
+    if (items.length < 2) {
+        alert('ルート検索には2つ以上の施設が必要です');
+        return;
+    }
+    
     const waypoints = items.map(item => ({
         lat: item.location.lat,
         lng: item.location.lng
     }));
 
-    if (waypoints.length < 2) {
-        alert('ルート検索には2つ以上の施設が必要です');
-        return;
+    // セグメント別の移動手段を取得（現在のリストに合わせて）
+    let segmentTravelModes = JSON.parse(localStorage.getItem('segmentTravelModes') || '[]');
+    
+    // 移動手段が設定されていない、または数が合わない場合は、デフォルトでDRIVINGを埋める
+    if (segmentTravelModes.length !== waypoints.length - 1) {
+        segmentTravelModes = Array(waypoints.length - 1).fill('DRIVING');
+        localStorage.setItem('segmentTravelModes', JSON.stringify(segmentTravelModes));
     }
+    
+    // 現在のDOMから移動手段を取得（より確実）
+    const travelModeCards = document.querySelectorAll('.travel-mode-card');
+    const currentModes = [];
+    travelModeCards.forEach((card, index) => {
+        const select = card.querySelector('select');
+        if (select && select.value) {
+            currentModes[index] = select.value;
+        } else {
+            currentModes[index] = segmentTravelModes[index] || 'DRIVING';
+        }
+    });
+    
+    // 現在のDOMから取得した移動手段を使用（なければlocalStorageから）
+    const finalModes = currentModes.length === waypoints.length - 1 
+        ? currentModes 
+        : segmentTravelModes;
 
     // マーカーをクリア
     mapController.clearMarkers();
@@ -391,8 +422,8 @@ async function updateRoute() {
     // 地図のリサイズをトリガー（レイアウト変更後に必要）
     google.maps.event.trigger(mapController.map, 'resize');
 
-    // ルートを計算（移動時間情報も取得）
-    const routeInfo = await mapController.calculateRoute(waypoints);
+    // セグメント別の移動手段でルートを計算（現在のリストから）
+    const routeInfo = await mapController.calculateRouteWithSegmentModes(waypoints, finalModes);
     
     if (routeInfo) {
         // 移動時間をサイドバーに表示
@@ -405,6 +436,7 @@ async function updateRoute() {
         mapController.addMarker(item.location, item.facility.name, index, photoUrl, item.facility);
     });
 }
+
 
 /**
  * 移動時間をサイドバーに表示

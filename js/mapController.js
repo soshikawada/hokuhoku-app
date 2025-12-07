@@ -334,9 +334,10 @@ class MapController {
      * @param {Array<Object>} waypoints - 経由地の配列（{lat, lng}形式）
      * @param {Object} origin - 出発地（{lat, lng}形式、オプション）
      * @param {Object} destination - 目的地（{lat, lng}形式、オプション）
+     * @param {string} travelMode - 移動手段（DRIVING, TRANSIT, WALKING, BICYCLING）
      * @returns {Promise<Object>} ルート情報と移動時間を含むオブジェクト
      */
-    async calculateRoute(waypoints, origin = null, destination = null) {
+    async calculateRoute(waypoints, origin = null, destination = null, travelMode = 'DRIVING') {
         if (!this.directionsService || !this.directionsRenderer) {
             console.error('Directions APIが初期化されていません');
             return null;
@@ -352,6 +353,7 @@ class MapController {
         const endPoint = destination || waypoints[waypoints.length - 1];
         const viaPoints = waypoints.slice(1, -1);
 
+        // 移動手段を設定
         const request = {
             origin: new google.maps.LatLng(startPoint.lat, startPoint.lng),
             destination: new google.maps.LatLng(endPoint.lat, endPoint.lng),
@@ -360,8 +362,18 @@ class MapController {
                 stopover: true
             })),
             optimizeWaypoints: false, // 順番を保持
-            travelMode: google.maps.TravelMode.DRIVING
+            travelMode: google.maps.TravelMode[travelMode] || google.maps.TravelMode.DRIVING
         };
+
+        // TRANSITモードの場合は、追加オプションを設定
+        if (travelMode === 'TRANSIT') {
+            request.transitOptions = {
+                modes: [google.maps.TransitMode.TRAIN, google.maps.TransitMode.BUS],
+                routingPreference: google.maps.TransitRoutePreference.LESS_WALKING
+            };
+            // 出発時刻を現在時刻に設定
+            request.departureTime = new Date();
+        }
 
         return new Promise((resolve, reject) => {
             this.directionsService.route(request, (result, status) => {
@@ -421,6 +433,141 @@ class MapController {
         const bounds = new google.maps.LatLngBounds();
         locations.forEach(loc => {
             bounds.extend(new google.maps.LatLng(loc.lat, loc.lng));
+        });
+        this.map.fitBounds(bounds);
+    }
+
+    /**
+     * セグメント別の移動手段でルートを計算
+     * @param {Array<Object>} waypoints - 経由地の配列
+     * @param {Array<string>} travelModes - 各セグメントの移動手段（n-1個）
+     * @returns {Promise<Object>} ルート情報
+     */
+    async calculateRouteWithSegmentModes(waypoints, travelModes) {
+        if (!this.directionsService || !this.directionsRenderer) {
+            console.error('Directions APIが初期化されていません');
+            return null;
+        }
+
+        if (waypoints.length < 2) {
+            console.warn('経由地が2つ以上必要です');
+            return null;
+        }
+
+        if (travelModes.length !== waypoints.length - 1) {
+            console.warn('移動手段の数がセグメント数と一致しません。デフォルトでDRIVINGを埋めます');
+            travelModes = Array(waypoints.length - 1).fill('DRIVING');
+        }
+
+        // 各セグメントごとにルートを計算
+        const routePromises = [];
+        for (let i = 0; i < waypoints.length - 1; i++) {
+            const origin = waypoints[i];
+            const destination = waypoints[i + 1];
+            const travelMode = travelModes[i] || 'DRIVING';
+            
+            routePromises.push(
+                this.calculateRouteSegment(origin, destination, travelMode)
+            );
+        }
+
+        try {
+            const segments = await Promise.all(routePromises);
+            
+            // すべてのセグメントを結合して地図に表示
+            this.renderCombinedRoute(segments, waypoints);
+            
+            // ルート情報を抽出
+            const allLegs = segments.flatMap(seg => {
+                if (seg.routes && seg.routes[0] && seg.routes[0].legs) {
+                    return seg.routes[0].legs.map(leg => ({
+                        startLocation: {
+                            lat: leg.start_location.lat(),
+                            lng: leg.start_location.lng()
+                        },
+                        endLocation: {
+                            lat: leg.end_location.lat(),
+                            lng: leg.end_location.lng()
+                        },
+                        duration: {
+                            value: leg.duration.value,
+                            text: leg.duration.text
+                        },
+                        distance: {
+                            value: leg.distance.value,
+                            text: leg.distance.text
+                        }
+                    }));
+                }
+                return [];
+            });
+
+            const routeInfo = {
+                route: segments[0], // 最初のセグメントを代表として保存
+                legs: allLegs
+            };
+
+            localStorage.setItem('routeInfo', JSON.stringify(routeInfo));
+            return routeInfo;
+        } catch (error) {
+            console.error('ルート計算エラー:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 単一セグメントのルートを計算
+     */
+    async calculateRouteSegment(origin, destination, travelMode) {
+        const request = {
+            origin: new google.maps.LatLng(origin.lat, origin.lng),
+            destination: new google.maps.LatLng(destination.lat, destination.lng),
+            travelMode: google.maps.TravelMode[travelMode] || google.maps.TravelMode.DRIVING
+        };
+
+        if (travelMode === 'TRANSIT') {
+            request.transitOptions = {
+                modes: [google.maps.TransitMode.TRAIN, google.maps.TransitMode.BUS],
+                routingPreference: google.maps.TransitRoutePreference.LESS_WALKING
+            };
+            request.departureTime = new Date();
+        }
+
+        return new Promise((resolve, reject) => {
+            this.directionsService.route(request, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    resolve(result);
+                } else {
+                    reject(new Error(`ルート計算エラー: ${status}`));
+                }
+            });
+        });
+    }
+
+    /**
+     * 複数のルートセグメントを地図に表示
+     */
+    renderCombinedRoute(segments, waypoints) {
+        // 既存のルートをクリア
+        this.directionsRenderer.setDirections({ routes: [] });
+
+        // 各セグメントを個別にレンダリング
+        segments.forEach((segment, index) => {
+            if (segment.routes && segment.routes[0]) {
+                // 新しいDirectionsRendererを作成して各セグメントを表示
+                const renderer = new google.maps.DirectionsRenderer({
+                    map: this.map,
+                    suppressMarkers: true, // マーカーは別途追加するため抑制
+                    preserveViewport: index > 0 // 最初以外はビューポートを保持
+                });
+                renderer.setDirections(segment);
+            }
+        });
+
+        // 地図の表示範囲を調整
+        const bounds = new google.maps.LatLngBounds();
+        waypoints.forEach(wp => {
+            bounds.extend(new google.maps.LatLng(wp.lat, wp.lng));
         });
         this.map.fitBounds(bounds);
     }

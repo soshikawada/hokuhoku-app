@@ -29,10 +29,30 @@ window.initMapForRecommendations = function() {
     // 行きたいリストの順番変更イベント
     document.addEventListener('wishlistOrderChanged', handleWishlistOrderChange);
     
+    // 移動手段選択の設定
+    const travelModeSelect = document.getElementById('travelMode');
+    if (travelModeSelect) {
+        // 既存の選択を読み込む
+        const savedTravelMode = localStorage.getItem('travelMode');
+        if (savedTravelMode) {
+            travelModeSelect.value = savedTravelMode;
+        }
+        
+        // 変更時に保存
+        travelModeSelect.addEventListener('change', (e) => {
+            localStorage.setItem('travelMode', e.target.value);
+        });
+    }
+    
     // ルートマップボタンのイベント設定
     const routeBtn = document.getElementById('routeBtn');
     if (routeBtn) {
         routeBtn.addEventListener('click', () => {
+            // 移動手段を保存（念のため）
+            const travelModeSelect = document.getElementById('travelMode');
+            const travelMode = travelModeSelect ? travelModeSelect.value : 'DRIVING';
+            localStorage.setItem('travelMode', travelMode);
+            
             window.location.href = 'route.html';
         });
     }

@@ -25,14 +25,21 @@ class DragDropManager {
             const draggingItem = document.querySelector('.dragging');
             if (!draggingItem) return;
 
+            // 移動手段カードの上にドラッグしている場合は無視
+            if (e.target.closest('.travel-mode-card')) {
+                return;
+            }
+
             const afterElement = this.getDragAfterElement(this.container, e.clientY);
-            const currentItem = e.target.closest('.wishlist-item');
             
             if (afterElement == null) {
                 this.container.appendChild(draggingItem);
             } else {
                 this.container.insertBefore(draggingItem, afterElement);
             }
+            
+            // ドラッグ後に移動手段カードを再配置
+            this.reorganizeTravelModeCards();
         });
 
         this.container.addEventListener('dragend', () => {
@@ -40,6 +47,8 @@ class DragDropManager {
             if (draggingItem) {
                 draggingItem.classList.remove('dragging');
             }
+            // 移動手段カードを再配置
+            this.reorganizeTravelModeCards();
             this.updateOrderNumbers();
             this.onOrderChange();
         });
@@ -78,6 +87,15 @@ class DragDropManager {
             errorMessage.remove();
         }
         
+        const index = this.items.length;
+        
+        // 最初の施設以外の場合、前の施設の後に移動手段カードを追加
+        if (index > 0) {
+            const travelModeCard = this.createTravelModeCard(index - 1);
+            this.container.appendChild(travelModeCard);
+        }
+        
+        // 施設カードを追加
         const item = this.createItemElement(facility, location);
         this.container.appendChild(item);
         this.items.push({ facility, location, element: item });
@@ -130,14 +148,72 @@ class DragDropManager {
     }
 
     /**
+     * 移動手段カードを作成
+     * @param {number} segmentIndex - セグメントインデックス（0から始まる）
+     * @returns {HTMLElement} 移動手段カード要素
+     */
+    createTravelModeCard(segmentIndex) {
+        const card = document.createElement('div');
+        card.className = 'travel-mode-card';
+        card.dataset.segmentIndex = segmentIndex;
+        
+        const prevIndex = segmentIndex;
+        const currentIndex = segmentIndex + 1;
+        const prevLabel = this.indexToAlphabet(prevIndex);
+        const currentLabel = this.indexToAlphabet(currentIndex);
+        
+        // 施設名を取得
+        const prevFacility = this.items[prevIndex] ? this.items[prevIndex].facility : null;
+        const currentFacility = this.items[currentIndex] ? this.items[currentIndex].facility : null;
+        const prevFacilityName = prevFacility ? prevFacility.name : '';
+        const currentFacilityName = currentFacility ? currentFacility.name : '';
+        
+        card.innerHTML = `
+            <div class="travel-mode-content">
+                <label class="travel-mode-label">
+                    ${prevLabel}(${prevFacilityName}) → ${currentLabel}(${currentFacilityName}) の移動手段：
+                </label>
+                <select class="travel-mode-select" data-segment-index="${segmentIndex}">
+                    <option value="DRIVING">🚗 車</option>
+                    <option value="TRANSIT">🚃 電車・バス</option>
+                    <option value="WALKING">🚶 徒歩</option>
+                    <option value="BICYCLING">🚴 自転車</option>
+                </select>
+            </div>
+        `;
+        
+        // 既存の移動手段を読み込む
+        const savedModes = JSON.parse(localStorage.getItem('segmentTravelModes') || '[]');
+        const selectElement = card.querySelector('select');
+        if (savedModes[segmentIndex]) {
+            selectElement.value = savedModes[segmentIndex];
+        }
+        
+        // 変更時に保存
+        selectElement.addEventListener('change', (e) => {
+            const savedModes = JSON.parse(localStorage.getItem('segmentTravelModes') || '[]');
+            savedModes[segmentIndex] = e.target.value;
+            localStorage.setItem('segmentTravelModes', JSON.stringify(savedModes));
+        });
+        
+        return card;
+    }
+
+    /**
      * アイテムを削除
      * @param {HTMLElement} itemElement - 削除するアイテム要素
      */
     removeItem(itemElement) {
         const index = this.items.findIndex(item => item.element === itemElement);
         if (index !== -1) {
+            // 削除する施設のインデックスを保存（移動手段の再配置に必要）
             this.items.splice(index, 1);
             itemElement.remove();
+            
+            // 移動手段カードを再配置（施設の間に必ず表示されるように）
+            this.reorganizeTravelModeCards();
+            
+            // 順番番号を更新
             this.updateOrderNumbers();
             this.onOrderChange();
         }
@@ -170,6 +246,33 @@ class DragDropManager {
                 orderNumber.textContent = this.indexToAlphabet(index);
             }
         });
+        
+        // 移動手段カードのラベルを更新
+        const travelModeCards = this.container.querySelectorAll('.travel-mode-card');
+        travelModeCards.forEach(card => {
+            const segmentIndex = parseInt(card.dataset.segmentIndex);
+            const prevIndex = segmentIndex;
+            const currentIndex = segmentIndex + 1;
+            const prevLabel = this.indexToAlphabet(prevIndex);
+            const currentLabel = this.indexToAlphabet(currentIndex);
+            
+            // 施設名を取得
+            const prevItem = this.items[prevIndex];
+            const currentItem = this.items[currentIndex];
+            const prevFacilityName = prevItem ? prevItem.facility.name : '';
+            const currentFacilityName = currentItem ? currentItem.facility.name : '';
+            
+            const label = card.querySelector('.travel-mode-label');
+            if (label) {
+                label.textContent = `${prevLabel}(${prevFacilityName}) → ${currentLabel}(${currentFacilityName}) の移動手段：`;
+            }
+            
+            // セグメントインデックスも更新
+            const select = card.querySelector('select');
+            if (select) {
+                select.dataset.segmentIndex = segmentIndex.toString();
+            }
+        });
     }
 
     /**
@@ -200,6 +303,87 @@ class DragDropManager {
             }
         });
         return items;
+    }
+
+    /**
+     * 移動手段カードを再配置（ドラッグ&ドロップ後、削除後）
+     */
+    reorganizeTravelModeCards() {
+        // this.itemsをDOMの順序に合わせて更新
+        const items = this.container.querySelectorAll('.wishlist-item');
+        const reorderedItems = [];
+        items.forEach(item => {
+            const facilityName = item.dataset.facilityName;
+            const prefecture = item.dataset.prefecture;
+            const matchedItem = this.items.find(i => 
+                i.facility.name === facilityName && i.facility.prefecture === prefecture
+            );
+            if (matchedItem) {
+                reorderedItems.push(matchedItem);
+            }
+        });
+        this.items = reorderedItems;
+        
+        // すべての移動手段カードを削除
+        const travelModeCards = this.container.querySelectorAll('.travel-mode-card');
+        travelModeCards.forEach(card => card.remove());
+        
+        // 保存済みの移動手段を取得
+        const savedModes = JSON.parse(localStorage.getItem('segmentTravelModes') || '[]');
+        
+        // 施設カードの順序に基づいて移動手段カードを再配置
+        items.forEach((item, index) => {
+            if (index > 0) {
+                // 前の施設カードの後に移動手段カードを挿入
+                const segmentIndex = index - 1;
+                const travelModeCard = this.createTravelModeCard(segmentIndex);
+                
+                // 保存済みの移動手段を適用（セグメントインデックスが有効な場合）
+                if (savedModes[segmentIndex]) {
+                    const selectElement = travelModeCard.querySelector('select');
+                    if (selectElement) {
+                        selectElement.value = savedModes[segmentIndex];
+                    }
+                }
+                
+                this.container.insertBefore(travelModeCard, item);
+            }
+        });
+        
+        // セグメントインデックスを再マッピング（削除後にインデックスがずれるため）
+        this.remapSegmentIndices();
+    }
+    
+    /**
+     * セグメントインデックスを再マッピング（削除後に移動手段のインデックスを調整）
+     */
+    remapSegmentIndices() {
+        const travelModeCards = this.container.querySelectorAll('.travel-mode-card');
+        const savedModes = JSON.parse(localStorage.getItem('segmentTravelModes') || '[]');
+        const newModes = [];
+        
+        // 新しい順序で移動手段を再マッピング
+        travelModeCards.forEach((card, cardIndex) => {
+            const oldSegmentIndex = parseInt(card.dataset.segmentIndex);
+            const newSegmentIndex = cardIndex;
+            
+            // セグメントインデックスを更新
+            card.dataset.segmentIndex = newSegmentIndex.toString();
+            const select = card.querySelector('select');
+            if (select) {
+                select.dataset.segmentIndex = newSegmentIndex.toString();
+            }
+            
+            // 移動手段の値を保持（可能な場合）
+            if (oldSegmentIndex < savedModes.length && savedModes[oldSegmentIndex]) {
+                newModes[newSegmentIndex] = savedModes[oldSegmentIndex];
+            } else {
+                newModes[newSegmentIndex] = 'DRIVING'; // デフォルト
+            }
+        });
+        
+        // localStorageを更新
+        localStorage.setItem('segmentTravelModes', JSON.stringify(newModes));
     }
 
     /**

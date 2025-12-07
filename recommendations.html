@@ -56,6 +56,19 @@
                     <p class="hint">ドラッグ&ドロップで順番を変更できます</p>
                     <button id="clearWishlistBtn" class="btn btn-danger btn-small" style="display: none;">すべて削除</button>
                 </div>
+                
+                <!-- 移動手段選択 -->
+                <div class="travel-mode-selector">
+                    <label for="travelMode" class="travel-mode-label">🚗 移動手段を選択</label>
+                    <select id="travelMode" class="travel-mode-select">
+                        <option value="DRIVING">🚗 車</option>
+                        <option value="TRANSIT">🚃 電車・バス</option>
+                        <option value="WALKING">🚶 徒歩</option>
+                        <option value="BICYCLING">🚴 自転車</option>
+                    </select>
+                    <p class="hint travel-mode-hint">選択した移動手段でルートを計算します</p>
+                </div>
+                
                 <div id="wishlist" class="wishlist"></div>
                 <div class="wishlist-actions">
                     <button id="routeBtn" class="btn btn-primary" style="display: none;">ルートマップを見る</button>

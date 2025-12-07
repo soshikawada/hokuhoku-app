@@ -20,13 +20,71 @@ body, html {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: #1a1a1a; /* 漆黒 */
+    background: radial-gradient(circle at center, #2a2a2a 0%, #1a1a1a 100%);
     z-index: 9999;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     color: #d4af37; /* 金沢箔のような落ち着いた金 */
+    perspective: 1000px; /* 3D効果用 */
+}
+
+/* --- ロゴコンテナ --- */
+.logo-container {
+    position: relative;
+    z-index: 10;
+    opacity: 0;
+    /* 初期状態：少し奥に配置し、ぼかしておく */
+    transform: translateZ(-200px) scale(0.8);
+    filter: blur(10px);
+    animation: logoAppear 2.5s cubic-bezier(0.23, 1, 0.32, 1) forwards 1s;
+    margin-bottom: 30px; /* テキストとの間隔 */
+}
+
+/* ロゴ画像 */
+.logo-image {
+    width: 300px; /* 適宜調整してください */
+    height: auto;
+    display: block;
+    /* ロゴ自体を少し発光させる（金色系） */
+    filter: drop-shadow(0 0 15px rgba(212, 175, 55, 0.4));
+}
+
+/* --- 背景の光のルートアニメーション --- */
+.route-lines-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.route-line {
+    position: absolute;
+    background: linear-gradient(90deg, transparent, rgba(212, 175, 55, 0.6), transparent);
+    height: 2px;
+    width: 0;
+    opacity: 0;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    transform-origin: left center;
+}
+
+/* ロゴから広がる波紋 */
+.ripple {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 2px solid rgba(212, 175, 55, 0.4);
+    opacity: 0;
+    animation: rippleEffect 3s ease-out forwards 1.2s;
 }
 
 /* --- テキストアニメーション --- */
@@ -42,7 +100,7 @@ body, html {
     margin-bottom: 10px;
     opacity: 0;
     transform: translateY(20px);
-    animation: fadeInUp 1.5s ease forwards 0.5s;
+    animation: fadeInUp 1.5s ease forwards 2.5s; /* ロゴの後に表示 */
     font-weight: 700;
 }
 
@@ -52,7 +110,7 @@ body, html {
     color: #aa8c46;
     opacity: 0;
     transform: translateY(20px);
-    animation: fadeInUp 1.5s ease forwards 1.0s;
+    animation: fadeInUp 1.5s ease forwards 3.0s; /* さらに後 */
     font-family: "Helvetica Neue", Arial, sans-serif; /* 英字はサンセリフでモダンに */
 }
 
@@ -72,7 +130,7 @@ body, html {
     height: 2px;
     background: #d4af37;
     margin-top: 40px;
-    animation: loadLine 5.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: loadLine 5.5s cubic-bezier(0.22, 1, 0.36, 1) forwards 3.5s; /* テキストの後に */
 }
 
 /* --- 画面遷移アニメーション（幕開け） --- */
@@ -81,6 +139,27 @@ body, html {
 }
 
 /* --- Keyframes --- */
+@keyframes logoAppear {
+    to {
+        opacity: 1;
+        transform: translateZ(0) scale(1);
+        filter: blur(0) drop-shadow(0 0 25px rgba(212, 175, 55, 0.6));
+    }
+}
+
+@keyframes rippleEffect {
+    0% { 
+        transform: translate(-50%, -50%) scale(0.8); 
+        opacity: 0.8; 
+        border-width: 5px; 
+    }
+    100% { 
+        transform: translate(-50%, -50%) scale(2.5); 
+        opacity: 0; 
+        border-width: 1px; 
+    }
+}
+
 @keyframes fadeInUp {
     to {
         opacity: 1;
@@ -115,6 +194,15 @@ body, html {
 
 /* スマホ対応 */
 @media screen and (max-width: 768px) {
+    .logo-image { 
+        width: 220px; 
+    }
+    
+    .ripple { 
+        width: 220px; 
+        height: 220px; 
+    }
+    
     .main-title { 
         font-size: 1.8rem;
         letter-spacing: 0.3em;
