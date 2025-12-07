@@ -1,0 +1,638 @@
+/**
+ * しおり用スタイルシート
+ */
+
+/* クラフト紙風の背景 */
+.itinerary-container {
+    background: linear-gradient(to bottom, #f5e6d3 0%, #e8d5b7 100%);
+    min-height: 100vh;
+    padding: 20px;
+    font-family: 'Kalam', 'Caveat', cursive, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ヘッダー */
+.itinerary-header {
+    text-align: center;
+    margin-bottom: 5mm;
+    position: relative;
+    width: 210mm; /* A4幅に固定 */
+}
+
+.header-content {
+    position: relative;
+    padding: 5mm 15mm;
+}
+
+.itinerary-title {
+    font-family: 'Caveat', cursive;
+    font-size: 3rem;
+    font-weight: 700;
+    color: #8b4513;
+    margin: 0 0 8mm 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: 2px;
+}
+
+.trip-info {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 0;
+    flex-wrap: wrap;
+}
+
+.trip-location {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 1.1rem;
+    color: #654321;
+    font-weight: 400;
+}
+
+.location-icon {
+    font-size: 1.2rem;
+}
+
+/* しおりページ */
+.itinerary-pages {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 210mm; /* A4幅に固定 */
+    margin: 0 auto;
+    align-items: center; /* 中央揃え */
+}
+
+.itinerary-page {
+    background: #faf8f3;
+    padding: 5mm 15mm 5mm 15mm; /* A4の余白（上下5mm、左右15mm） */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    page-break-after: always;
+    position: relative;
+    width: 210mm; /* A4幅に固定 */
+    height: 297mm; /* A4高さに固定 */
+    box-sizing: border-box;
+    overflow: visible; /* 4施設目が途切れないように */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+}
+
+/* ページタイトル */
+.page-title {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8b4513;
+    text-align: center;
+    margin-bottom: 5mm;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+    letter-spacing: 2px;
+    flex-shrink: 0;
+}
+
+/* 施設カード */
+.facility-item {
+    margin-bottom: 5mm;
+    position: relative;
+    min-height: 60mm; /* A4に4施設が収まる高さ */
+    max-height: 60mm; /* 最大高さを設定 */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding-left: 0; /* 左側の点線を削除 */
+    overflow: hidden; /* はみ出しを防ぐ */
+}
+
+/* 左側の点線を削除 */
+
+/* MEMOラベルは削除 */
+
+.facility-content {
+    display: flex;
+    gap: 15px;
+    align-items: flex-start;
+    height: 100%;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+/* 画像を非表示 */
+.facility-photo {
+    display: none;
+}
+
+/* Polaroid風の写真 */
+.facility-photo {
+    flex-shrink: 0;
+    width: 140px;
+    height: 140px;
+    background: white;
+    padding: 6px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transform: rotate(-1deg);
+    position: relative;
+    border: 1px solid #e0e0e0;
+}
+
+.facility-photo::before {
+    content: '';
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 5px;
+    background: #ddd;
+    border-radius: 2px;
+}
+
+.facility-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.facility-photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #e0e0e0 0%, #f5f5f5 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #999;
+    font-size: 0.9rem;
+}
+
+/* 施設情報 */
+.facility-info-wrapper {
+    flex: 1;
+    min-width: 0;
+    border: 2px dashed #8b4513;
+    border-radius: 4px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.5);
+}
+
+.facility-info {
+    width: 100%;
+}
+
+.facility-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.facility-number {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #8b4513;
+    min-width: 45px;
+    line-height: 1.3;
+}
+
+.facility-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #654321;
+    margin: 0;
+    line-height: 1.2;
+    flex: 1;
+    word-break: break-word;
+}
+
+.facility-prefecture {
+    font-size: 0.9rem;
+    color: #8b6f47;
+    margin-bottom: 6px;
+    font-weight: 400;
+    width: 100%;
+}
+
+/* 施設間の移動時間 */
+.travel-time-between {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 2mm 0;
+    padding: 3mm 0;
+    font-size: 0.9rem;
+    color: #654321;
+    font-weight: 500;
+    border: 2px dashed #8b4513;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.5);
+    min-height: 8mm;
+    line-height: 1.2;
+}
+
+.travel-time-label {
+    margin-right: 8px;
+    color: #8b4513;
+}
+
+.travel-time-text {
+    color: #654321;
+    font-weight: 600;
+}
+
+/* 時間入力欄 */
+.time-input-section {
+    margin-bottom: 5px;
+}
+
+.time-input-row {
+    display: flex;
+    align-items: center;
+    font-size: 1.1rem;
+    color: #8b6f47;
+    margin-bottom: 6px;
+    white-space: pre; /* 全角スペースを保持 */
+}
+
+.time-label-inline {
+    font-size: 1.1rem;
+    color: #654321;
+    font-weight: 400;
+}
+
+.time-placeholder {
+    font-family: 'Kalam', cursive;
+    font-size: 1.1rem;
+    color: #999;
+    display: inline-block;
+}
+
+.time-tilde {
+    color: #8b4513;
+    font-size: 1.1rem;
+    margin: 0 2px;
+}
+
+.time-separator {
+    color: #8b4513;
+    font-weight: 700;
+}
+
+.time-tilde {
+    margin: 0 5px;
+    color: #8b4513;
+}
+
+/* 移動時間表示 */
+/* 古いtravel-timeスタイルは削除（施設間の移動時間に変更） */
+
+/* MEMO欄（削除 - 画像では各施設の上にMEMOがある） */
+
+.memo-line:last-child {
+    border-bottom: none;
+}
+
+/* ページ番号 */
+.page-number {
+    position: absolute;
+    bottom: 5mm;
+    right: 15mm;
+    font-size: 0.85rem;
+    color: #8b6f47;
+    font-weight: 400;
+}
+
+/* 地図ページ */
+.map-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-page-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-page-title {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #8b4513;
+    margin-bottom: 10mm;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.map-image-container {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 10mm;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    overflow: hidden;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 0;
+}
+
+.map-image {
+    width: 100%;
+    height: auto;
+    max-height: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+.map-error {
+    padding: 40px;
+    text-align: center;
+    color: #8b6f47;
+    font-size: 1.2rem;
+    background: white;
+    border: 2px dashed #8b4513;
+    border-radius: 8px;
+}
+
+.map-legend-section {
+    width: 100%;
+    max-width: 100%;
+    flex-shrink: 0;
+    margin-top: 5mm;
+}
+
+.map-legend-section h3 {
+    font-family: 'Caveat', cursive;
+    font-size: 1.3rem;
+    color: #654321;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.legend-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.legend-marker {
+    width: 30px;
+    height: 30px;
+    background: #ff0000;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.legend-name {
+    font-size: 1rem;
+    color: #654321;
+    font-weight: 400;
+}
+
+/* フッター */
+.itinerary-footer {
+    margin-top: 30px;
+    text-align: center;
+    padding: 20px;
+    width: 210mm; /* A4幅に固定 */
+}
+
+.footer-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+/* 印刷用スタイル */
+@media print {
+    .itinerary-container {
+        background: white;
+        padding: 0;
+        width: 210mm;
+    }
+
+    .itinerary-header {
+        display: none; /* ヘッダーは非表示（ページタイトルを使用） */
+    }
+
+    .itinerary-footer {
+        display: none;
+    }
+
+    .itinerary-pages {
+        width: 210mm;
+        gap: 0;
+    }
+
+    .itinerary-page {
+        page-break-after: always;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 5mm 12mm 5mm 12mm; /* 印刷時の余白を最小限に */
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+    }
+
+    .itinerary-page:last-child {
+        page-break-after: auto;
+    }
+
+    .page-title {
+        font-size: 2rem;
+        margin-bottom: 6mm;
+    }
+
+    .facility-item {
+        margin-bottom: 5mm;
+        min-height: 60mm;
+        max-height: 60mm;
+        page-break-inside: avoid; /* 施設がページで分割されないように */
+    }
+
+    .travel-time-between {
+        margin: 2mm 0 !important;
+        padding: 3mm 0 !important;
+        min-height: 8mm !important;
+        font-size: 0.9rem !important;
+        line-height: 1.2 !important;
+        border: 2px dashed #8b4513 !important;
+        border-radius: 4px !important;
+        background: rgba(255, 255, 255, 0.5) !important;
+    }
+
+    .facility-photo {
+        display: none !important;
+    }
+
+    .map-image-container {
+        max-width: 100% !important;
+        margin-bottom: 10mm !important;
+        flex: 1 !important;
+    }
+
+    .map-image {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 200mm !important;
+    }
+
+    .map-page-title {
+        font-size: 1.8rem !important;
+        margin-bottom: 8mm !important;
+    }
+
+    .map-legend-section {
+        margin-top: 5mm !important;
+        flex-shrink: 0 !important;
+    }
+
+    .map-legend-section h3 {
+        font-size: 1.2rem !important;
+        margin-bottom: 8px !important;
+    }
+
+    @page {
+        size: A4;
+        margin: 0;
+    }
+}
+
+/* レスポンシブ - A4サイズを維持 */
+@media (max-width: 1200px) {
+    .itinerary-container {
+        padding: 10px;
+        overflow-x: auto;
+    }
+
+    .itinerary-header {
+        width: 210mm;
+        min-width: 210mm;
+    }
+
+    .itinerary-footer {
+        width: 210mm;
+        min-width: 210mm;
+    }
+
+    .itinerary-pages {
+        width: 210mm;
+        min-width: 210mm;
+    }
+
+    .itinerary-page {
+        width: 210mm;
+        min-width: 210mm;
+    }
+}
+
+@media (max-width: 768px) {
+    .itinerary-title {
+        font-size: 2.5rem;
+    }
+
+    .facility-photo {
+        width: 140px;
+        height: 140px;
+    }
+
+    .facility-name {
+        font-size: 1.3rem;
+    }
+}
+
+/* 共有モーダル */
+.share-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.share-modal-content {
+    background: white;
+    padding: 30px;
+    border-radius: 8px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.share-modal-content h2 {
+    font-family: 'Caveat', cursive;
+    font-size: 2rem;
+    color: #8b4513;
+    margin-bottom: 10px;
+}
+
+.share-modal-content p {
+    color: #654321;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
+}
+
+.share-link-container {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+}
+
+.share-link-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    font-family: monospace;
+}
+
+.qrcode-container {
+    margin: 20px 0;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+.qrcode-container canvas,
+.qrcode-container img {
+    border-radius: 4px;
+}
+

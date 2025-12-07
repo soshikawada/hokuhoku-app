@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ほくほくルート - 旅行しおり</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/itinerary.css">
+    <!-- Google Fonts - 手書き風フォント -->
+    <link href="https://fonts.googleapis.com/css2?family=Kalam:wght@300;400;700&family=Caveat:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="itinerary-container">
+        <header class="itinerary-header">
+            <div class="header-content">
+                <h1 class="itinerary-title">MY TRIP ITINERARY</h1>
+                <div class="trip-info">
+                    <div class="trip-location">
+                        <span class="location-icon">📍</span>
+                        <span id="tripLocation">北陸地方の旅</span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="itinerary-main">
+            <!-- しおりページコンテナ -->
+            <div id="itineraryPages" class="itinerary-pages"></div>
+        </main>
+
+        <footer class="itinerary-footer">
+            <div class="footer-actions">
+                <button id="printBtn" class="btn btn-primary">印刷する</button>
+                <button id="shareBtn" class="btn btn-primary">リンクを共有</button>
+                <a href="route.html" class="btn btn-secondary">ルートに戻る</a>
+            </div>
+        </footer>
+        
+        <!-- 共有モーダル -->
+        <div id="shareModal" class="share-modal" style="display: none;">
+            <div class="share-modal-content">
+                <h2>しおりを共有</h2>
+                <p>このリンクは1週間有効です</p>
+                <div class="share-link-container">
+                    <input type="text" id="shareLinkInput" readonly class="share-link-input">
+                    <button id="copyLinkBtn" class="btn btn-primary">コピー</button>
+                </div>
+                <div id="qrcode" class="qrcode-container"></div>
+                <button id="closeShareModalBtn" class="btn btn-secondary">閉じる</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- jsPDF と html2canvas のライブラリ -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+    <!-- 設定ファイル -->
+    <script src="js/config.js"></script>
+    
+    <!-- Google Maps API（写真取得用） -->
+    <script id="google-maps-script-itinerary"></script>
+    <script>
+        (function() {
+            const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
+                ? CONFIG.GOOGLE_MAPS_API_KEY 
+                : 'YOUR_API_KEY';
+            
+            if (apiKey !== 'YOUR_API_KEY') {
+                const script = document.getElementById('google-maps-script-itinerary');
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places&callback=initGoogleMapsForItinerary`;
+                script.async = true;
+                script.defer = true;
+            }
+        })();
+        
+        // Google Maps APIのコールバック
+        window.initGoogleMapsForItinerary = function() {
+            console.log('Google Maps APIが読み込まれました（しおり用）');
+            // 写真の読み込みを再試行
+            if (typeof loadMissingPhotos === 'function') {
+                loadMissingPhotos();
+            }
+        };
+    </script>
+
+    <!-- アプリケーションスクリプト -->
+    <script src="js/itineraryGenerator.js"></script>
+    <script src="js/itineraryPage.js"></script>
+</body>
+</html>
+

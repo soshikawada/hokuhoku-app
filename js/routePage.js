@@ -63,6 +63,20 @@ window.initMapForRoute = function() {
         updateRouteBtn.addEventListener('click', updateRoute);
     }
 
+    // しおり作成ボタンのイベント設定
+    const createItineraryBtn = document.getElementById('createItineraryBtn');
+    if (createItineraryBtn) {
+        createItineraryBtn.addEventListener('click', () => {
+            // ルートが計算されているか確認
+            const routeInfo = localStorage.getItem('routeInfo');
+            if (!routeInfo) {
+                alert('まず「ルートを更新」ボタンをクリックしてルートを計算してください。');
+                return;
+            }
+            window.location.href = 'itinerary.html';
+        });
+    }
+
     // 検索機能の設定
     setupSearchEvents();
 
@@ -368,13 +382,49 @@ async function updateRoute() {
     // 地図のリサイズをトリガー（レイアウト変更後に必要）
     google.maps.event.trigger(mapController.map, 'resize');
 
-    // ルートを計算
-    mapController.calculateRoute(waypoints);
+    // ルートを計算（移動時間情報も取得）
+    const routeInfo = await mapController.calculateRoute(waypoints);
+    
+    if (routeInfo) {
+        // 移動時間をサイドバーに表示
+        updateTravelTimes(routeInfo, items);
+    }
 
     // マーカーを追加（InfoWindow用にfacilityオブジェクトも渡す）
     items.forEach((item, index) => {
         const photoUrl = item.location && item.location.photoUrlLarge ? item.location.photoUrlLarge : null;
         mapController.addMarker(item.location, item.facility.name, index, photoUrl, item.facility);
+    });
+}
+
+/**
+ * 移動時間をサイドバーに表示
+ */
+function updateTravelTimes(routeInfo, items) {
+    const wishlistContainer = document.getElementById('wishlist');
+    if (!wishlistContainer) return;
+
+    const wishlistItems = wishlistContainer.querySelectorAll('.wishlist-item');
+    wishlistItems.forEach((itemElement, index) => {
+        // 既存の移動時間表示を削除
+        const existingTravelTime = itemElement.querySelector('.travel-time-display');
+        if (existingTravelTime) {
+            existingTravelTime.remove();
+        }
+
+        // 移動時間を追加（最初の施設以外）
+        if (index > 0 && routeInfo.legs[index - 1]) {
+            const leg = routeInfo.legs[index - 1];
+            const travelTimeDiv = document.createElement('div');
+            travelTimeDiv.className = 'travel-time-display';
+            travelTimeDiv.style.cssText = 'font-size: 0.85rem; color: #666; margin-top: 5px; padding-left: 10px;';
+            travelTimeDiv.innerHTML = `🚗 移動時間: 約${leg.duration.text} (${leg.distance.text})`;
+            
+            const facilityName = itemElement.querySelector('.facility-name, h3');
+            if (facilityName) {
+                facilityName.parentElement.appendChild(travelTimeDiv);
+            }
+        }
     });
 }
 

@@ -334,16 +334,17 @@ class MapController {
      * @param {Array<Object>} waypoints - 経由地の配列（{lat, lng}形式）
      * @param {Object} origin - 出発地（{lat, lng}形式、オプション）
      * @param {Object} destination - 目的地（{lat, lng}形式、オプション）
+     * @returns {Promise<Object>} ルート情報と移動時間を含むオブジェクト
      */
     async calculateRoute(waypoints, origin = null, destination = null) {
         if (!this.directionsService || !this.directionsRenderer) {
             console.error('Directions APIが初期化されていません');
-            return;
+            return null;
         }
 
         if (waypoints.length < 2) {
             console.warn('経由地が2つ以上必要です');
-            return;
+            return null;
         }
 
         // 出発地と目的地が指定されていない場合、最初と最後の経由地を使用
@@ -362,20 +363,51 @@ class MapController {
             travelMode: google.maps.TravelMode.DRIVING
         };
 
-        this.directionsService.route(request, (result, status) => {
-            if (status === google.maps.DirectionsStatus.OK) {
-                this.directionsRenderer.setDirections(result);
-                
-                // 地図の表示範囲を調整
-                const bounds = new google.maps.LatLngBounds();
-                result.routes[0].legs.forEach(leg => {
-                    bounds.extend(leg.start_location);
-                    bounds.extend(leg.end_location);
-                });
-                this.map.fitBounds(bounds);
-            } else {
-                console.error('ルート計算エラー:', status);
-            }
+        return new Promise((resolve, reject) => {
+            this.directionsService.route(request, (result, status) => {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    this.directionsRenderer.setDirections(result);
+                    
+                    // 地図の表示範囲を調整
+                    const bounds = new google.maps.LatLngBounds();
+                    result.routes[0].legs.forEach(leg => {
+                        bounds.extend(leg.start_location);
+                        bounds.extend(leg.end_location);
+                    });
+                    this.map.fitBounds(bounds);
+
+                    // 移動時間情報を抽出
+                    const routeInfo = {
+                        route: result,
+                        legs: result.routes[0].legs.map(leg => ({
+                            startLocation: {
+                                lat: leg.start_location.lat(),
+                                lng: leg.start_location.lng()
+                            },
+                            endLocation: {
+                                lat: leg.end_location.lat(),
+                                lng: leg.end_location.lng()
+                            },
+                            duration: {
+                                value: leg.duration.value, // 秒
+                                text: leg.duration.text    // "30分" などのテキスト
+                            },
+                            distance: {
+                                value: leg.distance.value, // メートル
+                                text: leg.distance.text    // "15 km" などのテキスト
+                            }
+                        }))
+                    };
+
+                    // 移動時間情報をlocalStorageに保存（しおり生成用）
+                    localStorage.setItem('routeInfo', JSON.stringify(routeInfo));
+
+                    resolve(routeInfo);
+                } else {
+                    console.error('ルート計算エラー:', status);
+                    reject(new Error(`ルート計算エラー: ${status}`));
+                }
+            });
         });
     }
 
