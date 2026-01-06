@@ -6,15 +6,10 @@ let mapController;
 let dragDropManager;
 let wishlistItems = [];
 
-// Google Maps APIのコールバック
+// Google Maps APIのコールバック（デモモードでも呼び出される）
 window.initMapForRoute = function() {
     console.log('initMapForRoute called');
     
-    if (typeof google === 'undefined' || !google.maps) {
-        console.error('Google Maps APIが読み込まれていません');
-        return;
-    }
-
     const mapElement = document.getElementById('map');
     if (!mapElement) {
         console.error('地図要素が見つかりません');
@@ -23,18 +18,31 @@ window.initMapForRoute = function() {
 
     console.log('地図要素が見つかりました:', mapElement);
 
-    // CONFIGが読み込まれているか確認
-    if (typeof CONFIG === 'undefined' || !CONFIG.GOOGLE_MAPS_API_KEY || CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY') {
-        console.error('Google Maps APIキーが設定されていません');
-        alert('Google Maps APIキーが設定されていません。js/config.jsファイルを確認してください。');
-        return;
+    // デモモードの場合はGoogle Maps APIがなくても動作
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+        console.log('デモモードで初期化します');
+    } else {
+        if (typeof google === 'undefined' || !google.maps) {
+            console.error('Google Maps APIが読み込まれていません');
+            return;
+        }
+
+        // CONFIGが読み込まれているか確認
+        if (typeof CONFIG === 'undefined' || !CONFIG.GOOGLE_MAPS_API_KEY || CONFIG.GOOGLE_MAPS_API_KEY === 'YOUR_API_KEY') {
+            console.error('Google Maps APIキーが設定されていません');
+            alert('Google Maps APIキーが設定されていません。js/config.jsファイルを確認してください。');
+            return;
+        }
     }
 
     console.log('MapControllerを初期化します...');
     
     // MapControllerの初期化
     mapController = new MapController();
-    mapController.initMap(CONFIG.GOOGLE_MAPS_API_KEY, mapElement);
+    const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
+        ? CONFIG.GOOGLE_MAPS_API_KEY 
+        : '';
+    mapController.initMap(apiKey, mapElement);
     
     console.log('地図が初期化されました:', mapController.map);
     
@@ -42,12 +50,17 @@ window.initMapForRoute = function() {
     setTimeout(() => {
         if (mapController && mapController.map) {
             console.log('地図のリサイズをトリガーします');
-            google.maps.event.trigger(mapController.map, 'resize');
-            
-            // 地図の中心を再設定
-            const bounds = new google.maps.LatLngBounds();
-            bounds.extend(new google.maps.LatLng(36.2048, 138.2529));
-            mapController.map.fitBounds(bounds);
+            // デモモードではGoogle Maps APIのイベントを呼び出さない
+            if (!(typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE)) {
+                if (typeof google !== 'undefined' && google.maps) {
+                    google.maps.event.trigger(mapController.map, 'resize');
+                    
+                    // 地図の中心を再設定
+                    const bounds = new google.maps.LatLngBounds();
+                    bounds.extend(new google.maps.LatLng(36.2048, 138.2529));
+                    mapController.map.fitBounds(bounds);
+                }
+            }
         }
     }, 300);
 
@@ -112,10 +125,14 @@ function setupSidebarToggle() {
         }
         document.body.style.overflow = 'hidden'; // 背景のスクロールを無効化
         
-        // 地図のリサイズをトリガー
+        // 地図のリサイズをトリガー（デモモードでは不要）
         setTimeout(() => {
             if (mapController && mapController.map) {
-                google.maps.event.trigger(mapController.map, 'resize');
+                if (!(typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE)) {
+                    if (typeof google !== 'undefined' && google.maps) {
+                        google.maps.event.trigger(mapController.map, 'resize');
+                    }
+                }
             }
         }, 300);
     }
@@ -128,10 +145,14 @@ function setupSidebarToggle() {
         }
         document.body.style.overflow = ''; // 背景のスクロールを有効化
         
-        // 地図のリサイズをトリガー
+        // 地図のリサイズをトリガー（デモモードでは不要）
         setTimeout(() => {
             if (mapController && mapController.map) {
-                google.maps.event.trigger(mapController.map, 'resize');
+                if (!(typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE)) {
+                    if (typeof google !== 'undefined' && google.maps) {
+                        google.maps.event.trigger(mapController.map, 'resize');
+                    }
+                }
             }
         }, 300);
     }
@@ -249,12 +270,20 @@ function handleSearch() {
         return;
     }
 
+    const resultsDiv = document.getElementById('searchResults');
+
+    // デモモードの場合は検索機能を無効化
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+        resultsDiv.innerHTML = '<div class="error">デモモードでは施設検索機能は使用できません。施設一覧から選択してください。</div>';
+        return;
+    }
+
+    // 通常モード（Google Places API使用）
     if (!mapController || !mapController.placesService) {
         alert('Google Maps APIが初期化されていません');
         return;
     }
 
-    const resultsDiv = document.getElementById('searchResults');
     resultsDiv.innerHTML = '<div class="loading">検索中...</div>';
 
     const request = {
@@ -419,8 +448,12 @@ async function updateRoute() {
     // マーカーをクリア
     mapController.clearMarkers();
 
-    // 地図のリサイズをトリガー（レイアウト変更後に必要）
-    google.maps.event.trigger(mapController.map, 'resize');
+    // 地図のリサイズをトリガー（レイアウト変更後に必要、デモモードでは不要）
+    if (!(typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE)) {
+        if (typeof google !== 'undefined' && google.maps && mapController.map) {
+            google.maps.event.trigger(mapController.map, 'resize');
+        }
+    }
 
     // セグメント別の移動手段でルートを計算（現在のリストから）
     const routeInfo = await mapController.calculateRouteWithSegmentModes(waypoints, finalModes);

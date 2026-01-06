@@ -8,17 +8,25 @@ let mapController;
 let dragDropManager;
 let facilities = [];
 
-// Google Maps APIのコールバック
+// Google Maps APIのコールバック（デモモードでも呼び出される）
 window.initMapForRecommendations = function() {
-    if (typeof google === 'undefined' || !google.maps) {
-        console.error('Google Maps APIが読み込まれていません');
-        return;
+    // デモモードの場合はGoogle Maps APIがなくても動作
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+        console.log('デモモードで初期化します');
+    } else {
+        if (typeof google === 'undefined' || !google.maps) {
+            console.error('Google Maps APIが読み込まれていません');
+            return;
+        }
     }
 
     // MapControllerの初期化（地図は表示しないが、Places APIを使用するため）
     mapController = new MapController();
     const dummyElement = document.createElement('div');
-    mapController.initMap(CONFIG.GOOGLE_MAPS_API_KEY, dummyElement);
+    const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
+        ? CONFIG.GOOGLE_MAPS_API_KEY 
+        : '';
+    mapController.initMap(apiKey, dummyElement);
     
     // 検索機能の設定
     setupSearchEvents();
@@ -89,6 +97,27 @@ async function loadRecommendations() {
         facilities = await csvParser.loadCSV('data/tif_score.csv');
         console.log(`${facilities.length}件の施設データを読み込みました`);
 
+        // デモモードの場合は、facilityLocations.jsonに登録されている施設のみをフィルタリング
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            try {
+                const filePath = CONFIG.FACILITY_LOCATIONS_FILE || 'data/facilityLocations.json';
+                const response = await fetch(filePath);
+                const locationData = await response.json();
+                
+                // facilityLocations.jsonのキー（都道府県_施設名）に一致する施設のみを抽出
+                const demoFacilityKeys = Object.keys(locationData);
+                facilities = facilities.filter(facility => {
+                    const key = `${facility.prefecture}_${facility.name}`;
+                    return demoFacilityKeys.includes(key);
+                });
+                
+                console.log(`デモモード: ${facilities.length}件の施設に絞り込みました`);
+            } catch (error) {
+                console.warn('位置情報ファイルの読み込みエラー:', error);
+                // エラーが発生した場合は、すべての施設を表示
+            }
+        }
+
         // レコメンドエンジンの初期化
         recommendationEngine = new RecommendationEngine(facilities);
 
@@ -104,15 +133,20 @@ async function loadRecommendations() {
         const userAttributes = JSON.parse(userAttributesJson);
 
         // レコメンド実行（スコア計算）
-        const recommendations = recommendationEngine.recommend(userAttributes, 30);
+        // デモモードの場合は、すべての施設を表示（5施設のみなので）
+        const limit = (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) ? facilities.length : 30;
+        const recommendations = recommendationEngine.recommend(userAttributes, limit);
         
         // ロード画面を非表示
         hideLoadingScreen();
         
         displayRecommendations(recommendations);
         
-        // その他の施設を表示（レコメンドされなかった施設）
-        displayOtherFacilities(recommendations);
+        // デモモードの場合は「その他の施設」セクションを非表示
+        if (!(typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE)) {
+            // その他の施設を表示（レコメンドされなかった施設）
+            displayOtherFacilities(recommendations);
+        }
     } catch (error) {
         console.error('レコメンド読み込みエラー:', error);
         hideLoadingScreen();
@@ -175,8 +209,8 @@ function displayRecommendations(recommendations) {
         const card = createFacilityCard(facility, index, existingWishlist);
         container.appendChild(card);
 
-        // 位置情報と写真を取得
-        if (mapController && mapController.placesService) {
+        // 位置情報と写真を取得（デモモードでも動作するようにmapControllerを使用）
+        if (mapController) {
             try {
                 const location = await mapController.getFacilityLocation(facility.name, facility.prefecture);
                 updateFacilityCard(card, facility, location);
@@ -217,10 +251,6 @@ function createFacilityCard(facility, index, existingWishlist) {
             <input type="checkbox" id="facility-${index}" ${isInWishlist ? 'checked' : ''} 
                    onchange="handleFacilityCheckbox(this, '${escapedName}', '${escapedPrefecture}')">
             <label for="facility-${index}">行きたいリストに追加</label>
-        </div>
-        <div class="facility-links">
-            <a href="evaluation.html?facility=${encodeURIComponent(facility.name)}&prefecture=${encodeURIComponent(facility.prefecture)}&ai=true" 
-               class="recommendation-link" target="_blank">✨ おすすめポイント</a>
         </div>
     `;
 
@@ -286,13 +316,54 @@ function handleSearch() {
         return;
     }
 
+    const resultsDiv = document.getElementById('searchResults');
+    resultsDiv.innerHTML = '<div class="loading">検索中...</div>';
+
+    // デモモードの場合はローカルデータから検索
+    if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+        const matchingFacilities = facilities.filter(facility => 
+            facility.name.includes(query) || 
+            facility.prefecture.includes(query)
+        );
+
+        if (matchingFacilities.length > 0) {
+            // ローカル検索結果を表示形式に変換
+            const mockResults = matchingFacilities.map(facility => {
+                // 位置情報を取得
+                return mapController.getFacilityLocation(facility.name, facility.prefecture)
+                    .then(location => ({
+                        name: facility.name,
+                        formatted_address: location.address || `${facility.name} ${facility.prefecture}`,
+                        geometry: {
+                            location: {
+                                lat: () => location.lat,
+                                lng: () => location.lng
+                            }
+                        },
+                        photos: location.photoUrl ? [{
+                            getUrl: () => location.photoUrl
+                        }] : null,
+                        place_id: `demo_${facility.prefecture}_${facility.name}`
+                    }));
+            });
+
+            Promise.all(mockResults).then(results => {
+                displaySearchResults(results);
+            }).catch(error => {
+                console.error('検索エラー:', error);
+                resultsDiv.innerHTML = '<div class="error">施設が見つかりませんでした</div>';
+            });
+        } else {
+            resultsDiv.innerHTML = '<div class="error">施設が見つかりませんでした</div>';
+        }
+        return;
+    }
+
+    // 通常モード（Google Places API使用）
     if (!mapController || !mapController.placesService) {
         alert('Google Maps APIが初期化されていません');
         return;
     }
-
-    const resultsDiv = document.getElementById('searchResults');
-    resultsDiv.innerHTML = '<div class="loading">検索中...</div>';
 
     const request = {
         query: query,
@@ -514,8 +585,8 @@ function displayOtherFacilities(recommendations) {
             const card = createFacilityCard(facility, globalIndex, existingWishlist);
             facilitiesGrid.appendChild(card);
 
-            // 位置情報と写真を取得
-            if (mapController && mapController.placesService) {
+            // 位置情報と写真を取得（デモモードでも動作するようにmapControllerを使用）
+            if (mapController) {
                 (async () => {
                     try {
                         const location = await mapController.getFacilityLocation(facility.name, facility.prefecture);

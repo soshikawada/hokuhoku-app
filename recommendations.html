@@ -110,9 +110,19 @@
     <script src="js/dragDrop.js"></script>
     <script src="js/recommendationsPage.js"></script>
     
-    <!-- Google Maps APIの動的読み込み -->
+    <!-- Google Maps APIの動的読み込み（デモモードでは無効） -->
     <script>
         (function() {
+            // デモモードの場合はGoogle Maps APIを読み込まない
+            if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+                console.log('デモモード: Google Maps APIは使用しません');
+                // デモモードでも初期化関数を呼び出す
+                if (typeof initMapForRecommendations === 'function') {
+                    setTimeout(initMapForRecommendations, 100);
+                }
+                return;
+            }
+            
             const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
                 ? CONFIG.GOOGLE_MAPS_API_KEY 
                 : 'YOUR_API_KEY';
