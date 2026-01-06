@@ -11,6 +11,7 @@ class MapController {
         this.placesService = null;
         this.facilityLocations = new Map(); // 施設名 -> 位置情報のキャッシュ
         this.infoWindow = null; // InfoWindow
+        this.routeLayer = null; // デモモード（Leaflet）のルート表示用
     }
 
     /**
@@ -21,6 +22,38 @@ class MapController {
     initMap(apiKey, mapElement) {
         if (!mapElement) {
             console.error('地図要素が見つかりません');
+            return;
+        }
+
+        // デモモードの場合はLeaflet(OpenStreetMap)で地図を初期化
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            if (typeof L === 'undefined') {
+                console.error('Leaflet (L) が読み込まれていません');
+                mapElement.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#666;">地図ライブラリが読み込まれていません</div>';
+                return;
+            }
+
+            // Leafletマップの初期化（日本付近を中心）
+            this.map = L.map(mapElement).setView([36.5, 136.9], 7);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(this.map);
+
+            this.markers = [];
+            this.routeLayer = null;
+            // GoogleのDirectionsやPlacesは使用しない
+            this.directionsService = null;
+            this.directionsRenderer = null;
+            this.placesService = null;
+            this.infoWindow = null;
+            return;
+        }
+
+        // 通常モード（Google Maps API使用）
+        if (typeof google === 'undefined' || !google.maps) {
+            console.error('Google Maps APIが読み込まれていません');
             return;
         }
 
@@ -45,7 +78,7 @@ class MapController {
     }
 
     /**
-     * 施設の位置情報を取得（Places API使用）
+     * 施設の位置情報を取得（Places API使用、またはデモモードではJSONファイルから）
      * @param {string} facilityName - 施設名
      * @param {string} prefecture - 都道府県
      * @returns {Promise<Object>} 位置情報と写真URLを含むオブジェクト
@@ -56,6 +89,49 @@ class MapController {
         // キャッシュをチェック
         if (this.facilityLocations.has(cacheKey)) {
             return this.facilityLocations.get(cacheKey);
+        }
+
+        // デモモードの場合はJSONファイルから読み込む
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            try {
+                const filePath = CONFIG.FACILITY_LOCATIONS_FILE || 'data/facilityLocations.json';
+                const response = await fetch(filePath);
+                const locations = await response.json();
+                
+                if (locations[cacheKey]) {
+                    this.facilityLocations.set(cacheKey, locations[cacheKey]);
+                    return locations[cacheKey];
+                }
+            } catch (error) {
+                console.warn('位置情報ファイルの読み込みエラー:', error);
+            }
+            
+            // 見つからない場合は都道府県の中心座標を使用
+            const fallbackLocation = this.getPrefectureCenter(prefecture);
+            const location = {
+                ...fallbackLocation,
+                name: facilityName,
+                photoUrl: 'images/placeholder.jpg',
+                photoUrlLarge: 'images/placeholder.jpg',
+                address: `${facilityName} ${prefecture}`
+            };
+            this.facilityLocations.set(cacheKey, location);
+            return location;
+        }
+
+        // 通常モード（Google Places API使用）
+        if (!this.placesService) {
+            // Places Serviceが初期化されていない場合はフォールバック
+            const fallbackLocation = this.getPrefectureCenter(prefecture);
+            const location = {
+                ...fallbackLocation,
+                name: facilityName,
+                photoUrl: 'images/placeholder.jpg',
+                photoUrlLarge: 'images/placeholder.jpg',
+                address: `${facilityName} ${prefecture}`
+            };
+            this.facilityLocations.set(cacheKey, location);
+            return location;
         }
 
         return new Promise((resolve, reject) => {
@@ -205,6 +281,25 @@ class MapController {
             return null;
         }
 
+        // デモモード（Leaflet）
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            if (typeof L === 'undefined') {
+                console.warn('Leaflet が読み込まれていないため、マーカーを追加できません');
+                return null;
+            }
+            const marker = L.marker([location.lat, location.lng], {
+                title: title
+            }).addTo(this.map);
+            this.markers.push(marker);
+            return marker;
+        }
+
+        // 通常モード（Google Maps）
+        if (typeof google === 'undefined' || !google.maps) {
+            console.error('Google Maps APIが読み込まれていません');
+            return null;
+        }
+
         const marker = new google.maps.Marker({
             position: { lat: location.lat, lng: location.lng },
             map: this.map,
@@ -325,8 +420,79 @@ class MapController {
      * すべてのマーカーをクリア
      */
     clearMarkers() {
-        this.markers.forEach(marker => marker.setMap(null));
+        // デモモード（Leaflet）の場合
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            this.markers.forEach(marker => {
+                if (marker && marker.remove) {
+                    marker.remove();
+                }
+            });
+            this.markers = [];
+            // ルートポリラインもクリア
+            if (this.routeLayer && this.routeLayer.remove) {
+                this.routeLayer.remove();
+                this.routeLayer = null;
+            }
+            return;
+        }
+
+        // 通常モード（Google Maps）
+        this.markers.forEach(marker => {
+            if (marker && marker.setMap) {
+                marker.setMap(null);
+            }
+        });
         this.markers = [];
+    }
+
+    /**
+     * 2点間の距離を計算（簡易版：直線距離）
+     * @param {Object} point1 - 地点1（{lat, lng}）
+     * @param {Object} point2 - 地点2（{lat, lng}）
+     * @returns {Object} 距離情報（meters, text）
+     */
+    calculateDistance(point1, point2) {
+        const R = 6371000; // 地球の半径（メートル）
+        const lat1 = point1.lat * Math.PI / 180;
+        const lat2 = point2.lat * Math.PI / 180;
+        const deltaLat = (point2.lat - point1.lat) * Math.PI / 180;
+        const deltaLng = (point2.lng - point1.lng) * Math.PI / 180;
+        
+        const a = Math.sin(deltaLat/2) * Math.sin(deltaLat/2) +
+                  Math.cos(lat1) * Math.cos(lat2) *
+                  Math.sin(deltaLng/2) * Math.sin(deltaLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c;
+        
+        return {
+            meters: distance,
+            text: distance < 1000 ? `${Math.round(distance)}m` : `${(distance/1000).toFixed(1)}km`
+        };
+    }
+
+    /**
+     * 移動時間を推定
+     * @param {Object} distance - 距離情報（{meters, text}）
+     * @param {string} travelMode - 移動手段
+     * @returns {Object} 時間情報（seconds, text）
+     */
+    estimateDuration(distance, travelMode) {
+        let speed; // km/h
+        switch(travelMode) {
+            case 'DRIVING': speed = 50; break;
+            case 'TRANSIT': speed = 30; break;
+            case 'WALKING': speed = 4; break;
+            case 'BICYCLING': speed = 15; break;
+            default: speed = 50;
+        }
+        
+        const hours = distance.meters / 1000 / speed;
+        const minutes = Math.round(hours * 60);
+        
+        return {
+            seconds: minutes * 60,
+            text: minutes < 60 ? `${minutes}分` : `${Math.floor(minutes/60)}時間${minutes%60}分`
+        };
     }
 
     /**
@@ -338,13 +504,62 @@ class MapController {
      * @returns {Promise<Object>} ルート情報と移動時間を含むオブジェクト
      */
     async calculateRoute(waypoints, origin = null, destination = null, travelMode = 'DRIVING') {
-        if (!this.directionsService || !this.directionsRenderer) {
-            console.error('Directions APIが初期化されていません');
+        if (waypoints.length < 2) {
+            console.warn('経由地が2つ以上必要です');
             return null;
         }
 
-        if (waypoints.length < 2) {
-            console.warn('経由地が2つ以上必要です');
+        // デモモードの場合はモックデータを生成
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            const startPoint = origin || waypoints[0];
+            const endPoint = destination || waypoints[waypoints.length - 1];
+            const viaPoints = waypoints.slice(1, -1);
+            
+            const legs = [];
+            let currentPoint = startPoint;
+            
+            // 経由地を含むすべてのポイント間のルートを計算
+            const allPoints = [startPoint, ...viaPoints, endPoint];
+            for (let i = 0; i < allPoints.length - 1; i++) {
+                const start = allPoints[i];
+                const end = allPoints[i + 1];
+                const distance = this.calculateDistance(start, end);
+                const duration = this.estimateDuration(distance, travelMode);
+                
+                legs.push({
+                    startLocation: start,
+                    endLocation: end,
+                    duration: duration,
+                    distance: distance
+                });
+            }
+
+            const routeInfo = {
+                route: { routes: [{ legs: legs }] },
+                legs: legs
+            };
+
+            // Leaflet上にルートを表示
+            if (this.map && typeof L !== 'undefined') {
+                const latlngs = allPoints.map(p => [p.lat, p.lng]);
+                if (this.routeLayer && this.routeLayer.remove) {
+                    this.routeLayer.remove();
+                }
+                this.routeLayer = L.polyline(latlngs, {
+                    color: '#006e5f',
+                    weight: 5,
+                    opacity: 0.8
+                }).addTo(this.map);
+                this.map.fitBounds(this.routeLayer.getBounds(), { padding: [40, 40] });
+            }
+
+            localStorage.setItem('routeInfo', JSON.stringify(routeInfo));
+            return routeInfo;
+        }
+
+        // 通常モード（Google Directions API使用）
+        if (!this.directionsService || !this.directionsRenderer) {
+            console.error('Directions APIが初期化されていません');
             return null;
         }
 
@@ -444,11 +659,6 @@ class MapController {
      * @returns {Promise<Object>} ルート情報
      */
     async calculateRouteWithSegmentModes(waypoints, travelModes) {
-        if (!this.directionsService || !this.directionsRenderer) {
-            console.error('Directions APIが初期化されていません');
-            return null;
-        }
-
         if (waypoints.length < 2) {
             console.warn('経由地が2つ以上必要です');
             return null;
@@ -457,6 +667,53 @@ class MapController {
         if (travelModes.length !== waypoints.length - 1) {
             console.warn('移動手段の数がセグメント数と一致しません。デフォルトでDRIVINGを埋めます');
             travelModes = Array(waypoints.length - 1).fill('DRIVING');
+        }
+
+        // デモモードの場合はモックデータを生成
+        if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+            const legs = [];
+            for (let i = 0; i < waypoints.length - 1; i++) {
+                const start = waypoints[i];
+                const end = waypoints[i + 1];
+                const travelMode = travelModes[i] || 'DRIVING';
+                const distance = this.calculateDistance(start, end);
+                const duration = this.estimateDuration(distance, travelMode);
+                
+                legs.push({
+                    startLocation: start,
+                    endLocation: end,
+                    duration: duration,
+                    distance: distance
+                });
+            }
+
+            const routeInfo = {
+                route: { routes: [{ legs: legs }] },
+                legs: legs
+            };
+
+            // Leaflet上にルートを表示
+            if (this.map && typeof L !== 'undefined') {
+                const latlngs = waypoints.map(p => [p.lat, p.lng]);
+                if (this.routeLayer && this.routeLayer.remove) {
+                    this.routeLayer.remove();
+                }
+                this.routeLayer = L.polyline(latlngs, {
+                    color: '#006e5f',
+                    weight: 5,
+                    opacity: 0.8
+                }).addTo(this.map);
+                this.map.fitBounds(this.routeLayer.getBounds(), { padding: [40, 40] });
+            }
+
+            localStorage.setItem('routeInfo', JSON.stringify(routeInfo));
+            return routeInfo;
+        }
+
+        // 通常モード（Google Directions API使用）
+        if (!this.directionsService || !this.directionsRenderer) {
+            console.error('Directions APIが初期化されていません');
+            return null;
         }
 
         // 各セグメントごとにルートを計算

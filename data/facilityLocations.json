@@ -1,0 +1,43 @@
+{
+  "石川県_兼六園": {
+    "lat": 36.5624,
+    "lng": 136.6622,
+    "name": "兼六園",
+    "address": "石川県金沢市兼六町1",
+    "photoUrl": "images/spots/kenrokuen.png",
+    "photoUrlLarge": "images/spots/kenrokuen.png"
+  },
+  "石川県_金沢駅": {
+    "lat": 36.5781,
+    "lng": 136.6480,
+    "name": "金沢駅",
+    "address": "石川県金沢市木ノ新保町1-1",
+    "photoUrl": "images/spots/kanazawaeki.png",
+    "photoUrlLarge": "images/spots/kanazawaeki.png"
+  },
+  "富山県_富山市": {
+    "lat": 36.6953,
+    "lng": 137.2113,
+    "name": "富山市",
+    "address": "富山県富山市",
+    "photoUrl": "images/spots/toyama.png",
+    "photoUrlLarge": "images/spots/toyama.png"
+  },
+  "福井県_かつやま恐竜の森 エリア": {
+    "lat": 36.0833,
+    "lng": 136.5167,
+    "name": "かつやま恐竜の森 エリア",
+    "address": "福井県勝山市村岡町",
+    "photoUrl": "images/spots/kyoryu.png",
+    "photoUrlLarge": "images/spots/kyoryu.png"
+  },
+  "福井県_大本山 永平寺 エリア": {
+    "lat": 36.0652,
+    "lng": 136.2216,
+    "name": "大本山 永平寺 エリア",
+    "address": "福井県吉田郡永平寺町志比",
+    "photoUrl": "images/spots/eiheizi.png",
+    "photoUrlLarge": "images/spots/eiheizi.png"
+  }
+}
+

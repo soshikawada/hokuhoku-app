@@ -8,6 +8,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
+    <!-- Leaflet（OpenStreetMap用） -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
 </head>
 <body>
     <div class="route-container">
@@ -64,6 +69,11 @@
         </main>
     </div>
 
+    <!-- Leaflet（OpenStreetMap用） -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    ></script>
+
     <!-- 設定ファイル -->
     <script src="js/config.js"></script>
     
@@ -76,9 +86,19 @@
     <script src="js/dragDrop.js"></script>
     <script src="js/routePage.js"></script>
     
-    <!-- Google Maps APIの動的読み込み -->
+    <!-- Google Maps APIの動的読み込み（デモモードでは無効） -->
     <script>
         (function() {
+            // デモモードの場合はGoogle Maps APIを読み込まない
+            if (typeof CONFIG !== 'undefined' && CONFIG.DEMO_MODE) {
+                console.log('デモモード: Google Maps APIは使用しません');
+                // デモモードでも初期化関数を呼び出す
+                if (typeof initMapForRoute === 'function') {
+                    setTimeout(initMapForRoute, 100);
+                }
+                return;
+            }
+            
             const apiKey = (typeof CONFIG !== 'undefined' && CONFIG.GOOGLE_MAPS_API_KEY) 
                 ? CONFIG.GOOGLE_MAPS_API_KEY 
                 : 'YOUR_API_KEY';
