@@ -34,6 +34,13 @@ const CONFIG = {
     // 取得方法: https://platform.openai.com/api-keys
     // 注意: このファイルは.gitignoreに含まれているため、Gitにコミットされません
     OPENAI_API_KEY: '${openaiApiKey}',
+
+    // デモモード設定
+    // trueにするとGoogle Maps APIを使わず、固定データで動作します
+    DEMO_MODE: true,
+
+    // 位置情報ファイルのパス（デモモード用）
+    FACILITY_LOCATIONS_FILE: 'data/facilityLocations.json',
     
     // 上記のOPENAI_API_KEYが空文字列の場合、環境変数やlocalStorageから取得
     get OPENAI_API_KEY_FALLBACK() {
